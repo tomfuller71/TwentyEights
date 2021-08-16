@@ -16,6 +16,7 @@ struct TeamScoreView: View {
         //Player team scores
         VStack(spacing: 2) {
             Text(team.rawValue)
+                .bold()
                 .background(
                     RoundedRectangle(cornerRadius: 7)
                         .fill(team == .player ? Color.moss : Color.cayenne)

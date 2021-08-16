@@ -75,7 +75,7 @@ struct PlayingTableView: View {
         .onAppear {
             if user.gameStage == .playingRound(.starting) && user.userIsActive {
                 withAnimation {
-                    user.playerAction = .startRound
+                    user.playerAction = .startNewRound
                 }
             }
         }
@@ -92,7 +92,7 @@ extension PlayingTableView {
             switch user.gameStage {
             case .playingRound(.ending):
                 EndRoundView(
-                    userTeamWon: user.userTeamWon,
+                    userTeamWon: user.game.round.winningTeam == user.userSeat.partnerGroup,
                     gamePoints: _28s.gamePointsForBidOf(user.scores.bid.bidPoints),
                     action: $user.playerAction,
                     showView: $showStageChange)

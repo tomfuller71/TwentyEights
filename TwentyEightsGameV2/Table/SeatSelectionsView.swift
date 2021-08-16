@@ -14,7 +14,7 @@ struct SeatSelectionsView: View {
     
     var body: some View {
         GeometryReader { proxy in
-            ForEach(selections) {  selection in
+            ForEach(selections) { selection in
                 Group {
                     if case .playCardInTrick(let card) = selection.type {
                         CardView(card: card)
@@ -43,7 +43,15 @@ struct SeatSelectionsView_Previews: PreviewProvider {
             PlayerAction(seat: .south, type: .playCardInTrick(Card(face: .ace, suit: .heart))),
             PlayerAction(seat: .north, type: .playCardInTrick(Card(face: .jack, suit: .heart))),
             PlayerAction(seat: .east, type: .pass(stage: .first)),
-            PlayerAction(seat: .west, type: .makeBid(Bid(points: 16, card: Card(face: .ten, suit: .club), stage: .first)))
+            PlayerAction(
+                seat: .west,
+                type: .makeBid(
+                    Bid(points: 16,
+                        card: Card(face: .ten, suit: .club),
+                        bidder: .west
+                        )
+                )
+            )
         ]
         
         ZStack {

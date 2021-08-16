@@ -27,7 +27,12 @@ struct SeatView_Previews: PreviewProvider {
             PlayerAction(seat: .north, type: .playCardInTrick(Card(face: .jack, suit: .heart))),
             PlayerAction(seat: .east, type: .pass(stage: .first)),
             PlayerAction(seat: .west, type: .makeBid(
-                            Bid(points: 16, card: Card(face: .ten, suit: .club), stage: .first))
+                Bid(
+                    points: 16,
+                    card: Card(face: .ten, suit: .club),
+                    bidder: .west
+                )
+            )
             )
         ]
         

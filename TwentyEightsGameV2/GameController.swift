@@ -13,16 +13,25 @@ class GameController {
     //MARK: - Game properties
     var players: [Seat : Player]
     var starting: Seat
-    var scores: [PartnerGroup : Int] = [.player : 6, .opponent : 6]
+    
+    var scores: [PartnerGroup : Int] = [
+        .player : _28s.gameTeamStartingPoints,
+        .opponent :  _28s.gameTeamStartingPoints
+    ]
+    
     var gameWinningTeam: PartnerGroup?
     var round: Round
-    var seatActions: [PlayerAction] = []
+    var roundCount: Int = 0
+    var roundActions: [(Int, PlayerAction)] = []
     
     @Published var gameStage: GameStage = .playingRound(.starting)
     @Published var active: Seat
     @Published var seatJustCalledTrump: Seat?
     @Published var trickComplete: Bool = false
     @Published var roundStageAdvanced: Bool = false
+    
+    
+    let defaults = UserDefaults.standard
     
     init(players: [ Seat : Player], starting: Seat = .south) {
         self.players = players
@@ -37,7 +46,8 @@ extension GameController {
     //MARK: - User / AI intents
     /// Update model with player action and then take required game controller action
     func respondToPlayerAction(_ action: PlayerAction) {
-        seatActions.append(action)
+        roundActions.append((roundCount, action)) // May use later for replay of rounds
+        round.actions.append(action)
         updateModelWithAction(action)
         takeGameAction()
     }
@@ -47,29 +57,21 @@ extension GameController {
     private func updateModelWithAction(_ action: PlayerAction) {
         // Take the player action
         switch action.type {
-        case .startRound:
-            startRound()
     
         case .selectATrump(let trump):
             round.selectATrump(seat: action.seat, trumpCard: trump)
         
         case .unSelectATrump:
             round.unSelectATrump()
-            
-        case .makeBid(let bid):
-            round.bid(seat: action.seat, bid: bid)
-            
-        case .pass:
-            round.pass(seat: action.seat)
         
-        case .startTrick:
-            round.startTrick()
+        case .makeBid, .pass:
+            round.takeBiddingAction(action)
             
-        case .playCardInTrick(let card):
+        case .playCardInTrick(_):
             if action.seat == seatJustCalledTrump {
                 seatJustCalledTrump = nil
             }
-            round.playInTrick(seat: action.seat, card: card)
+            round.playInTrick(action: action)
             
         case .callForTrump:
             round.seatCallsTrump(action.seat)
@@ -81,6 +83,7 @@ extension GameController {
         case .startNewGame:
             newGame()
         }
+        
         print(action.text)
     }
     
@@ -103,12 +106,13 @@ extension GameController {
     
     /// Checks to see whether a bidding stage has ended and advances the game and round stages accordingly
     private func checkRoundStageAdvance()  {
-        if round.bidding.advanceStage {
+        if round.bidding.roundStageShouldAdvance() {
             roundStageAdvanced = true
             DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay) {
                 self.round.advanceRoundStage()
+                print("Advancing round stage to \(self.round.stage.textDescription)")
                 self.roundStageAdvanced = false
-                self.updateStage(self.round.stage)
+                self.updateStage()
                 self.setNextActive()
             }
         }
@@ -117,10 +121,34 @@ extension GameController {
         }
     }
     
+    /// Takes the next game controller action (as distinct from player actions)
+    private func nextPlayingAction() {
+        if round.currentTrick.isComplete {
+            if round.checkForRoundWinner() {
+                trickComplete = true
+                print("Round over - \(round.winningTeam!.rawValue) won")
+                DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay) {
+                    self.trickComplete = false
+                    self.updateGameScore()
+                    self.updateStage()
+                }
+            }
+            else {
+                startNewTrick()
+            }
+        }
+        else {
+            setNextActive()
+        }
+    }
+    
     /// Updates `gamestage` used by the playing table views for transistions
-    private func updateStage(_ currentStage: Round.RoundStage) {
-        print("Changed from \(currentStage) to \(round.stage)")
-        gameStage = .playingRound(round.stage)
+    private func updateStage() {
+        print("Changed from \(gameStage.textDescription) to \(round.stage.textDescription)")
+        
+        if gameStage != .endingGame {
+            gameStage = .playingRound(round.stage)
+        }
     }
     
     /// Sets the `active` seat
@@ -141,23 +169,7 @@ extension GameController {
     }
     
     
-    /// Takes the next game controller action (as distinct from player actions)
-    private func nextPlayingAction() {
-        if round.currentTrick.isComplete {
-            if round.checkForRoundWinner() {
-                DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay) {
-                    self.updateGameScore()
-                    self.updateStage(.ending)
-                }
-            }
-            else {
-                startNewTrick()
-            }
-        }
-        else {
-            setNextActive()
-        }
-    }
+
     
     /// Starts a new `currentTrick` in the `round`
     private func startNewTrick() {
@@ -175,7 +187,7 @@ extension GameController {
     /// Updates the game points for the teams at the end of a round
     private func updateGameScore() {
         guard let winner = round.winningTeam else { return }
-        let points = _28s.gamePointsForBidOf(round.bidding.bid?.points ?? 0)
+        let points = _28s.gamePointsForBidOf(round.bidding.winningBid?.points ?? 0)
         
         scores[winner]! += points
         scores[winner.opposingTeam]! -= points
@@ -196,21 +208,22 @@ extension GameController {
     // TODO:- consolidate start round and newRound into one function
     /// Called to start a new round of the game
     private func newRound() {
-        starting = starting.nextSeat()
         gameStage = .playingRound(.starting)
-        round = Round(starting: starting)
-        startRound()
+        
+        if roundCount > 0 {
+            starting = starting.nextSeat()
+            round = Round(starting: starting)
+        }
+        
+        roundCount += 1
+        round.startRound()
+        active = starting
     }
-    
-    /// Called to start playing a new round
-    private func startRound() {
-        round.stage = .bidding(.first)
-        round.hands.add4CardsToHands()
-    }
+
     
     /// Called to start a new game
     private func newGame() {
-        scores = [.player : 6, .opponent : 6]
+        scores = [.player :  _28s.gameTeamStartingPoints, .opponent :  _28s.gameTeamStartingPoints]
         newRound()
     }
     // MARK: - Get Game state methods

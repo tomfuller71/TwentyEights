@@ -11,36 +11,60 @@ import Combine
 class UserView: ObservableObject {
     //MARK:- Class properties
     private(set) var game: GameController
+    
     private(set) var userSeat: Seat
     
-    // Game properties (linked to model via combine publishers)
-    private(set) var activeSeat : Seat { didSet { respondToActiveSeatChange(oldValue) } }
+    // Player action taken
+    var playerAction: PlayerAction.ActionType? {
+        didSet {
+            playerActionReponse()
+        }
+    }
     
-    @Published private(set) var gameStage: GameStage
+    // Game properties (linked to model via combine publishers)
+    private(set) var activeSeat : Seat {
+        didSet {
+            respondToActiveSeatChange(oldValue)
+        }
+    }
+    
+    @Published private(set) var gameStage: GameStage {
+        willSet {
+            gameActionResponse()
+        }
+    }
     
     @Published private(set) var currentTrickComplete: Bool {
-        willSet { if newValue == true { seats = updateSeatsViewModel() } }
+        willSet {
+            if newValue == true {
+                gameActionResponse()
+            }
+        }
     }
     
     @Published private(set) var roundStageAdvanced: Bool {
-        willSet { if newValue == true {
-            seats = updateSeatsViewModel() }
+        willSet {
+            if newValue == true {
+                gameActionResponse()
+            }
         }
     }
     
     @Published private(set) var seatJustCalledTrump: Seat? {
-        willSet { if newValue != nil { userCards = updateUserCardsModel() } }
+        willSet {
+            if newValue != nil {
+                userCards = updateUserCardsModel()
+                updateScores()
+            }
+        }
     }
-    
-    // Player action taken
-    var playerAction: PlayerAction.ActionType? { didSet { playerActionReponse() } }
     
     // Sub view models
     @Published private(set) var userCards = UserCardsModel()
     @Published private(set) var scores = ScoresViewModel()
     @Published private(set) var seats = SeatSelectionViewModel()
     @Published private(set) var alerts = AlertViewModel()
-    @Published private(set) var picker = BidPickerModel()
+    @Published private(set) var picker: BidPickerModel
 
     // Holds cancel tokens for combine publishers in the game data model
     private var gameStageCancellable: AnyCancellable?
@@ -54,6 +78,7 @@ class UserView: ObservableObject {
         self.userSeat = userSeat
         self.activeSeat = game.active
         self.gameStage = game.gameStage
+        self.picker = BidPickerModel(seat: userSeat)
         self.currentTrickComplete = game.trickComplete
         self.roundStageAdvanced = game.roundStageAdvanced
         self.gameStageCancellable = self.game.$gameStage.assign(to: \.gameStage, on: self)
@@ -94,11 +119,23 @@ extension UserView {
     }
     
     /// True is the user can pass in a bidding round
-    private var canPass: Bool { game.round.bidding.bidder != nil }
+    private var canPass: Bool { game.round.bidding.winningBid != nil }
     
-    private var userNotPlayed: Bool { game.round.currentTrick.seatsYetToPlay().contains(userSeat) }
+    private var userNotPlayed: Bool { game.round.currentTrick.seatsYetToPlay.contains(userSeat) }
     
     private var trickComplete: Bool { game.round.currentTrick.isComplete }
+    
+    private var userIsLastBidder: Bool {
+        game.round.actions.filter { action in
+            switch action.type {
+            case .makeBid(_):
+                return true
+            default:
+                return false
+            }
+        }
+        .last?.seat == userSeat
+    }
 }
 
 // MARK: - Update methods
@@ -106,44 +143,51 @@ extension UserView {
     /// Responds to player action being set in table and calls the appropriate game round function
     private func playerActionReponse() {
         guard let action = playerAction else { return }
-
+        
         game.respondToPlayerAction(PlayerAction(seat: userSeat, type: action))
         playerAction = nil
         userCards = updateUserCardsModel()
         alerts = updateAlert()
+        updateScores()
         
         if isBidding {
             picker = updateBidPicker()
         }
     }
     
+    /// Respond to game controller action
+    private func gameActionResponse() {
+        withAnimation {
+            //seats = updateSeatsViewModel()
+            updateSeatActionView()
+            updateScores()
+            alerts = updateAlert()
+        }
+    }
+    
     /// Updates the view model based on response to active seat changing
     private func respondToActiveSeatChange(_ old: Seat) {
         print("\(old.name) to \(activeSeat.name)")
-        alerts = updateAlert()
-        updateScores()
+        
+        withAnimation {
+            alerts = updateAlert()
+        }
         
         // Updates seat view unless moving to user playing at the end of a trick
         if !(trickComplete && game.round.next == userSeat) {
-            seats = updateSeatsViewModel()
+            withAnimation {
+                //seats = updateSeatsViewModel()
+                updateSeatActionView()
+            }
         }
-    
+        
         if userIsActive {
-            //Update the user cards
             userCards = updateUserCardsModel()
             
-            // And if bidding update the picker
             if isBidding {
                 picker = updateBidPicker()
             }
         }
-        
-        /* Start trick if needed
-        if !isBidding && userIsActive && trickComplete {
-            DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay) {
-                self.playerAction = .startTrick
-            }
-        } */
     }
 }
 
@@ -238,7 +282,7 @@ extension UserView {
         }
         
         var bidIndicator: ScoresViewModel.Direction? {
-            if game.round.trump.bidder?.partnerGroup == .player {
+            if game.round.trump.bidder?.partnerGroup == .player && userIsLastBidder {
                 return .left
             }
             else if game.round.trump.bidder?.partnerGroup == .opponent {
@@ -250,7 +294,7 @@ extension UserView {
         }
         
         scores.bid = ScoresViewModel.BidStatus(
-            bidPoints: game.round.bidding.bid?.points ?? 0,
+            bidPoints: game.round.bidding.winningBid?.points ?? 0,
             trumpCalled: game.round.trump.isCalled,
             trumpSuit: game.round.trump.card?.suit,
             bidIndicator: bidIndicator
@@ -267,49 +311,59 @@ extension UserView {
         var indicatorAngle: Angle = .degrees(0)
     }
     
+    /// Updates the current seat Action view model
+    private func updateSeatActionView() {
+        if isBidding {
+            seats.selections = game.round.bidding.actions
+            
+            // Starting angle
+            seats.indicatorAngle =
+                Angle(
+                    degrees: game.round.bidding.winningBid?.bidder.angle ?? game.round.starting.angle
+                )
+        }
+        else {
+            
+            seats.selections = game.round.currentTrick.seatActions
+            
+            seats.highlightSeat = game.round.currentTrick.winningSeat
+            
+            // Starting angle
+            seats.indicatorAngle =
+                Angle(degrees: game.round.currentTrick.starting.angle)
+            
+        }
+        // Add 90 degrees to angle per selection
+        seats.indicatorAngle += Angle(degrees: Double(min(seats.selections.count, 3)) * 90 )
+    }
+    
+    
     /// Updates the seats selection view model
     private func updateSeatsViewModel() -> SeatSelectionViewModel {
         var angleCount = 0
         var actions = [PlayerAction]()
-        
-        if isPlaying {
-            let trickCards = game.round.currentTrick.played.map { (seat, card) -> PlayerAction in
-                PlayerAction(seat: seat, type: .playCardInTrick(card))
-            }
-            actions = trickCards
-            angleCount = min(trickCards.count, 3)
-        }
+        var highlight: Seat?
         
         if isBidding {
-            let stage = game.round.bidding.stage
-            
-            if !roundStageAdvanced {
-                
-                actions = game.seatActions.filter { action in
-                    switch action.type {
-                    case .makeBid(let bid):
-                        if bid.stage == stage { return true } else { return false }
-                        
-                    case .pass(let passStage):
-                        if passStage == stage { return true }  else { return false }
-                        
-                    default:
-                        return false
-                    }
-                }
-            }
-            actions = Array(actions.suffix(4))
-            angleCount = actions.count
+            actions = game.round.bidding.actions
+            angleCount = min(actions.count, 3)
         }
         
-        let highlight = isBidding ? game.round.bidding.bidder : game.round.currentTrick.winningSeat
+        if isPlaying || game.round.stage == .ending {
+            let trickCards = game.round.currentTrick.seatActions
+            actions = trickCards
+            angleCount = min(trickCards.count, 3)
+            highlight = game.round.currentTrick.winningSeat
+        }
+        
         
         var startingAngle: Angle {
             if isPlaying {
                 return Angle(degrees: game.round.currentTrick.starting.angle)
             }
             else {
-                return Angle(degrees: game.round.starting.angle)
+                return Angle(
+                    degrees: game.round.bidding.winningBid?.bidder.angle ?? game.round.starting.angle)
             }
         }
         
@@ -328,6 +382,7 @@ extension UserView {
 extension UserView {
     /// Model of the properties in a BidPickerView
     struct BidPickerModel {
+        var seat: Seat
         var pickerValues: [Int] = []
         var stage = Bidding.BiddingStage.first
         var minBid: Int = Bidding.BiddingStage.first.minimumBid
@@ -339,19 +394,20 @@ extension UserView {
     
     /// Returns updated picker sub-view model
     private func updateBidPicker() -> BidPickerModel {
-        guard (userIsActive && isBidding) else { return BidPickerModel() }
+        guard (userIsActive && isBidding) else { return BidPickerModel(seat: userSeat) }
         
         var maxBid: Int {
             var max = game.round.bidding.stage.maximumBid
-            if (game.round.bidding.bid?.points ?? 0) >= max {
+            if (game.round.bidding.winningBid?.points ?? 0) >= max {
                 max = Bidding.BiddingStage.second.maximumBid
             }
             return max
         }
         
-        var minBid: Int { game.round.bidMinForSeat(userSeat) }
+        var minBid: Int { game.round.bidding.bidMinForSeat(userSeat) }
         
         return BidPickerModel(
+            seat: userSeat,
             pickerValues: Array(minBid ... maxBid),
             stage: game.round.bidding.stage,
             minBid: minBid,
@@ -371,7 +427,6 @@ extension UserView {
         var userCanCallTrump: Bool = false
         var hideView: Bool = true
     }
-    
     
     /// True if the user has can call for the trump card to be shown
     private var canCall: Bool {
@@ -397,6 +452,15 @@ extension UserView {
                     status = "Play a Card"
                 }
             }
+            else {
+                if isBidding {
+                    status = "\(activeSeat.name.capitalized) to bid"
+                }
+                else {
+                    status = "\(activeSeat.name.capitalized) to play"
+                }
+            }
+            
             return status
         }
         

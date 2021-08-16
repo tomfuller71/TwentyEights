@@ -15,12 +15,10 @@ struct PlayerAction: Identifiable {
     var type: ActionType
     
     enum ActionType {
-        case startRound
         case selectATrump(Card)
         case unSelectATrump
         case pass(stage: Bidding.BiddingStage)
         case makeBid(_ bid: Bid)
-        case startTrick
         case playCardInTrick(Card)
         case callForTrump
         case startNewRound
@@ -29,8 +27,6 @@ struct PlayerAction: Identifiable {
     
     var text: String {
         switch self.type {
-        case .startRound:
-            return "\(seat.name) started Round"
         case .selectATrump(let card):
             return "\(seat.name) selected \(card.text) as trump"
         case .unSelectATrump:
@@ -38,9 +34,7 @@ struct PlayerAction: Identifiable {
         case .pass(let stage):
             return "\(seat.name) passed in \(stage) round of bidding"
         case .makeBid(let bid):
-            return "\(seat.name) bid \(bid.points) with \(bid.card.text) as trump in \(bid.stage) round of bidding"
-        case .startTrick:
-            return "\(seat.name) started trick"
+            return "\(seat.name) bid \(bid.points) with \(bid.card.text) as trump"
         case .playCardInTrick(let card):
             return "\(seat.name) played \(card.text) in trick"
         case .callForTrump:

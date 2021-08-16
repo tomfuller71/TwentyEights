@@ -13,7 +13,7 @@ enum _28s {
     static let uiDelay: Double = 1.5
     
     /// The initial points that a team in a game of 28s start with.  If the team reaches zero point they lose.
-    static let gameTeamStartingPoints: Int = 6
+    static let gameTeamStartingPoints: Int = 0
     
     /// The sum of the " honor point" value of each card within the initial deck of cards used in  a game of 28s.  Where the name 28s comes from!
     static let pointsInDeck: Int = 28
@@ -58,5 +58,14 @@ enum _28s {
          .west : Player(name: "West", playerType: .localCPU),
      ]
     
+    
+    /// Static property of the arbitary value given to each card of the same suit above a set level
+    static let bidPointsPerExtraCard: Double = 2.0
+
+    /// The number of cards of a given suit  that must be exceeded for the bid point calculation to factor in extra points
+    static let extraCardofSuitLimit: Int = 2
+    
+    /// The minimum number of points above the minBid needed for CPU player to bid
+    static let minBidBufffer: Int = 1
 }
 

@@ -32,7 +32,7 @@
 		C478FEF925E9B4450050B0E5 /* GameController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FEF825E9B4450050B0E5 /* GameController.swift */; };
 		C478FF0225E9B4DC0050B0E5 /* Round.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FF0125E9B4DC0050B0E5 /* Round.swift */; };
 		C478FF1825ED55230050B0E5 /* IntID.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FF1725ED55230050B0E5 /* IntID.swift */; };
-		C483C89F2607A16800D9D1A1 /*  FlipViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C483C89E2607A16800D9D1A1 /*  FlipViewModifier.swift */; };
+		C483C89F2607A16800D9D1A1 /* FlipViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C483C89E2607A16800D9D1A1 /* FlipViewModifier.swift */; };
 		C48C42462603E34B009E81D9 /* UserCardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48C42452603E34B009E81D9 /* UserCardsView.swift */; };
 		C48C42562603FCA6009E81D9 /* ActiveSeatIndictorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48C42552603FCA6009E81D9 /* ActiveSeatIndictorView.swift */; };
 		C48C42592603FE28009E81D9 /* BidSeatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48C42582603FE28009E81D9 /* BidSeatView.swift */; };
@@ -62,7 +62,9 @@
 		C4EC1C5125FFA7B100A2ADA7 /* SeatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EC1C3D25FFA7B100A2ADA7 /* SeatView.swift */; };
 		C4EC1C5225FFA7B100A2ADA7 /* EndRoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EC1C3E25FFA7B100A2ADA7 /* EndRoundView.swift */; };
 		C4EC1C5325FFA7B100A2ADA7 /* App UI Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EC1C4025FFA7B100A2ADA7 /* App UI Style.swift */; };
-		FA26CF162617A29800F7D0B3 /* NestedStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA26CF152617A29800F7D0B3 /* NestedStructs.swift */; };
+		FAD64343269F1AD700FBC7F7 /* Fill.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD64342269F1AD700FBC7F7 /* Fill.swift */; };
+		FAD7E1D626C9970500D4C3B8 /* NestedStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD7E1D526C9970500D4C3B8 /* NestedStructs.swift */; };
+		FAE069CD26C871170065D172 /* Game errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE069CC26C871170065D172 /* Game errors.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,7 +95,7 @@
 		C478FEF825E9B4450050B0E5 /* GameController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameController.swift; sourceTree = "<group>"; };
 		C478FF0125E9B4DC0050B0E5 /* Round.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Round.swift; sourceTree = "<group>"; };
 		C478FF1725ED55230050B0E5 /* IntID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntID.swift; sourceTree = "<group>"; };
-		C483C89E2607A16800D9D1A1 /*  FlipViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = " FlipViewModifier.swift"; sourceTree = "<group>"; };
+		C483C89E2607A16800D9D1A1 /* FlipViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlipViewModifier.swift; sourceTree = "<group>"; };
 		C48C42452603E34B009E81D9 /* UserCardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCardsView.swift; sourceTree = "<group>"; };
 		C48C42552603FCA6009E81D9 /* ActiveSeatIndictorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveSeatIndictorView.swift; sourceTree = "<group>"; };
 		C48C42582603FE28009E81D9 /* BidSeatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BidSeatView.swift; sourceTree = "<group>"; };
@@ -123,7 +125,9 @@
 		C4EC1C3D25FFA7B100A2ADA7 /* SeatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeatView.swift; sourceTree = "<group>"; };
 		C4EC1C3E25FFA7B100A2ADA7 /* EndRoundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EndRoundView.swift; sourceTree = "<group>"; };
 		C4EC1C4025FFA7B100A2ADA7 /* App UI Style.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "App UI Style.swift"; sourceTree = "<group>"; };
-		FA26CF152617A29800F7D0B3 /* NestedStructs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NestedStructs.swift; path = ../../TwentyEights/JokerGame/JokerGame/Models/NestedStructs.swift; sourceTree = "<group>"; };
+		FAD64342269F1AD700FBC7F7 /* Fill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fill.swift; sourceTree = "<group>"; };
+		FAD7E1D526C9970500D4C3B8 /* NestedStructs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NestedStructs.swift; sourceTree = "<group>"; };
+		FAE069CC26C871170065D172 /* Game errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Game errors.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,7 +145,6 @@
 			isa = PBXGroup;
 			children = (
 				C40BBF7B25F1994800DD2AC6 /* UserView.swift */,
-				C408CE8E25F9AC370093FA1F /* CPUPlayer.swift */,
 			);
 			name = ViewModels;
 			sourceTree = "<group>";
@@ -224,7 +227,7 @@
 		C478FEF425E9B3BA0050B0E5 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				FA26CF152617A29800F7D0B3 /* NestedStructs.swift */,
+				FAD7E1D526C9970500D4C3B8 /* NestedStructs.swift */,
 				C478FF0625E9B5C80050B0E5 /* Game */,
 			);
 			name = Models;
@@ -233,9 +236,10 @@
 		C478FF0625E9B5C80050B0E5 /* Game */ = {
 			isa = PBXGroup;
 			children = (
-				C478FEF825E9B4450050B0E5 /* GameController.swift */,
-				C478FEE125E9B1050050B0E5 /* Player.swift */,
 				C478F15A25EECCA700E79A15 /* _28s constants.swift */,
+				C478FEF825E9B4450050B0E5 /* GameController.swift */,
+				C408CE8E25F9AC370093FA1F /* CPUPlayer.swift */,
+				C478FEE125E9B1050050B0E5 /* Player.swift */,
 				C478FF0825E9B5F70050B0E5 /* Round */,
 			);
 			name = Game;
@@ -291,7 +295,9 @@
 			isa = PBXGroup;
 			children = (
 				C4BA0D76260BB5B400A296CB /* onPressingDragGesture.swift */,
-				C483C89E2607A16800D9D1A1 /*  FlipViewModifier.swift */,
+				FAE069CC26C871170065D172 /* Game errors.swift */,
+				FAD64342269F1AD700FBC7F7 /* Fill.swift */,
+				C483C89E2607A16800D9D1A1 /* FlipViewModifier.swift */,
 				C478FF1725ED55230050B0E5 /* IntID.swift */,
 				C4BAF811260BE72D006AAB23 /* Glow.swift */,
 				C4AB769E2604F27200AB6015 /* GeometryProxy + center.swift */,
@@ -435,19 +441,21 @@
 				C48C42562603FCA6009E81D9 /* ActiveSeatIndictorView.swift in Sources */,
 				C4EC1C5325FFA7B100A2ADA7 /* App UI Style.swift in Sources */,
 				C48C42672604D321009E81D9 /* TeamScoreGaugeView.swift in Sources */,
-				C483C89F2607A16800D9D1A1 /*  FlipViewModifier.swift in Sources */,
+				C483C89F2607A16800D9D1A1 /* FlipViewModifier.swift in Sources */,
 				C4EC1C5025FFA7B100A2ADA7 /* PlayingTableView.swift in Sources */,
 				C478FEF925E9B4450050B0E5 /* GameController.swift in Sources */,
 				C478FED425E9B0C70050B0E5 /* GameStage.swift in Sources */,
+				FAD7E1D626C9970500D4C3B8 /* NestedStructs.swift in Sources */,
 				C4075ECB26029B840014F4EB /* 28sPreViewData.swift in Sources */,
 				C4AB76B626050E3200AB6015 /* TrumpPlaceHolderView.swift in Sources */,
 				C478FE4D25E9B0230050B0E5 /* TwentyEightsGameV2App.swift in Sources */,
 				C4EC1C4125FFA7B100A2ADA7 /* CardView.swift in Sources */,
+				FAD64343269F1AD700FBC7F7 /* Fill.swift in Sources */,
 				C4EC1C4E25FFA7B100A2ADA7 /* ScoresView.swift in Sources */,
 				C48C425E2604D269009E81D9 /* TeamScoreView.swift in Sources */,
-				FA26CF162617A29800F7D0B3 /* NestedStructs.swift in Sources */,
 				C4EC1C4925FFA7B100A2ADA7 /* TrumpCalled.swift in Sources */,
 				C4EC1C4C25FFA7B100A2ADA7 /* EndGameView.swift in Sources */,
+				FAE069CD26C871170065D172 /* Game errors.swift in Sources */,
 				C478FF1825ED55230050B0E5 /* IntID.swift in Sources */,
 				C478FED225E9B0C70050B0E5 /* Suit.swift in Sources */,
 				C4EC1C4A25FFA7B100A2ADA7 /* BidPickerView.swift in Sources */,

@@ -14,99 +14,66 @@ struct BidPickerView: View {
     @State var currentBid: Int = 0
     
     init(picker: UserView.BidPickerModel, playerAction: Binding<PlayerAction.ActionType?>) {
-        // Default for now until set by call when Bid process complete
         self.picker = picker
         self._userBidIntent = playerAction
-        
-        // Default used only as SwiftUI doesn't have segmentControl so setting on view .init
-        let font = UIFont(name: "Academy Engraved LET", size: 22)!
-        UISegmentedControl
-            .appearance()
-            .setBackgroundImage(UIImage.clearW1H32, for: .normal, barMetrics: .default)
-        UISegmentedControl.appearance()
-            .setTitleTextAttributes([.foregroundColor: UIColor.lemon, .font: font],for: .selected)
-        UISegmentedControl.appearance()
-            .setTitleTextAttributes([.foregroundColor: UIColor.offWhite, .font: font],for: .normal)
+        BidPickerView.configPickerWithUIKit()
     }
     
     var body: some View {
-       
+    
         VStack(spacing: 0) {
-            //Picker for eligible bids
-            VStack(spacing: 0) {
-                Divider().frame(height: 1.5)
-                    .background(Color.offWhite)
-                    .padding([.bottom],7)
-                
-                Picker("Picker", selection: $currentBid) {
-                    ForEach(picker.pickerValues, id: \.self) { value in
-                        Text("\(value)")
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .background(Color.clear)
-                .onChange(of: picker.minBid, perform: { newMin in
-                    currentBid = newMin
-                })
-                .onAppear {
-                    currentBid = picker.minBid
-                }
-                
-                Divider()
-                    .frame(height: 1.5)
-                    .background(Color.offWhite)
-            }
-            .frame(width: CGFloat(picker.pickerValues.count) * segmentWidth)
-            .padding([.bottom], 10)
-            
-            // Bid Buttons
+            pickerView
+
+            // Bid & Pass Buttons
             HStack {
-                //Bid Button
                 Button(
-                    action:
-                        {
-                            if picker.canBid && currentBid >= picker.minBid {
-                                withAnimation {
-                                    // Bid has to be the min Bid to be valid
-                                    userBidIntent = .makeBid(
-                                        Bid(
-                                            points: currentBid,
-                                            card: picker.trump!,
-                                            stage: picker.stage)
-                                    )
-                                }
-                            }
-                        },
-                    label: {
-                        Text("Bid")
-                            .baselineOffset(-2)
-                            .foregroundColor(picker.canBid ? Color.lemon : Color.gray)
-                            .opacity(picker.canBid ? 1 : 0.5)
-                    }
+                    action: { userBid() },
+                    label: { bidLabel }
                 )
                 .padding([.trailing], 20)
+                .disabled(!userCanBid)
                 
-                // Pass Button
                 Button(
-                    action: {
-                        if picker.canPass {
-                            withAnimation {
-                                userBidIntent = .pass(stage: picker.stage)
-                            }
-                        }
-                    },
-                    label: {
-                        Text("Pass")
-                            .baselineOffset(-2)
-                            .foregroundColor(picker.canPass ? Color.lemon : Color.gray)
-                            .opacity(picker.canPass ? 1 : 0.5)
-                    }
+                    action: { userPass() },
+                    label: { passLabel }
                 )
+                .disabled(!picker.canPass)
             }
             .font(Font.custom("Academy Engraved LET", size: 22))
         }
     }
     
+    /// The UI picker element
+    private var pickerView: some View {
+        VStack(spacing: 0) {
+            Divider().frame(height: 1.5)
+                .background(Color.offWhite)
+                .padding([.bottom],7)
+            
+            Picker("Picker", selection: $currentBid) {
+                ForEach(picker.pickerValues, id: \.self) { value in
+                    Text("\(value)")
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .background(Color.clear)
+            .onChange(
+                of: picker.minBid,
+                perform: { newMin in currentBid = newMin }
+            )
+            .onAppear {
+                currentBid = picker.minBid
+            }
+            
+            Divider()
+                .frame(height: 1.5)
+                .background(Color.offWhite)
+        }
+        .frame(width: CGFloat(picker.pickerValues.count) * segmentWidth)
+        .padding([.bottom], 10)
+    }
+    
+    /// The width for each segment of picker based on number of segments
     private var segmentWidth: CGFloat {
         switch picker.pickerValues.count {
         case 0 ... 3:   return 60
@@ -114,6 +81,41 @@ struct BidPickerView: View {
         case 6 ... 7:   return 45
         default:        return 40
         }
+    }
+    
+    private var userCanBid: Bool { picker.canBid && currentBid >= picker.minBid }
+    
+    /// Make the bid for the user
+    private func userBid() {
+        withAnimation {
+            userBidIntent = .makeBid(
+                Bid(
+                    points: currentBid,
+                    card: picker.trump!,
+                    bidder: picker.seat
+                )
+            )
+        }
+    }
+    
+    private var bidLabel: some View {
+        Text("Bid")
+            .baselineOffset(-2)
+            .foregroundColor(userCanBid ? Color.lemon : Color.gray)
+            .opacity(userCanBid ? 1 : 0.5)
+    }
+    
+    private func userPass() {
+        withAnimation {
+            userBidIntent = .pass(stage: picker.stage)
+        }
+    }
+    
+    private var passLabel: some View {
+        Text("Pass")
+            .baselineOffset(-2)
+            .foregroundColor(picker.canPass ? Color.lemon : Color.gray)
+            .opacity(picker.canPass ? 1 : 0.5)
     }
 }
 
@@ -125,6 +127,7 @@ struct BidPickerView_Previews: PreviewProvider {
             
             BidPickerView(
                 picker: UserView.BidPickerModel(
+                    seat: .south,
                     pickerValues: Array<Int>(14...20),
                     canBid: true,
                     canPass: true,
@@ -134,6 +137,25 @@ struct BidPickerView_Previews: PreviewProvider {
             )
         }
         .edgesIgnoringSafeArea(.all)
+    }
+}
+
+
+extension BidPickerView {
+    
+    /// Used  as SwiftUI doesn't have segmentControl so using UIKit settings on view .init
+    static func configPickerWithUIKit() {
+        let font = UIFont(name: "Academy Engraved LET", size: 22)!
+        
+        UISegmentedControl
+            .appearance()
+            .setBackgroundImage(UIImage.clearW1H32, for: .normal, barMetrics: .default)
+        
+        UISegmentedControl.appearance()
+            .setTitleTextAttributes([.foregroundColor: UIColor.lemon, .font: font],for: .selected)
+        
+        UISegmentedControl.appearance()
+            .setTitleTextAttributes([.foregroundColor: UIColor.offWhite, .font: font],for: .normal)
     }
 }
 

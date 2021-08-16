@@ -39,11 +39,12 @@ struct EndGameView: View {
         .onTapGesture {
             action = .startNewGame
         }
-        .onAppear {
+       /* .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay * 2 ) {
                 action = .startNewGame
             }
         }
+        */
     }
 }
 

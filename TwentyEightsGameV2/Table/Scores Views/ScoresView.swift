@@ -37,8 +37,13 @@ struct ScoresView_Previews: PreviewProvider {
             let userView = UserView(game: GameController(players: _28s.players))
             userView.game.round.trump.card = Card(face: .ace, suit: .club)
             userView.game.gameStage = .playingRound(.playing)
-            userView.game.round.bidding.bid = Bid(points: 14, card: Card(face: .ace, suit: .club), stage: .first)
-            userView.game.round.bidding.bidder = .north
+            userView.game.round.bidding.winningBid = Bid(
+                points: 14,
+                card: Card(face: .ace, suit: .club),
+                bidder: .north
+                //stage: .first
+            )
+ 
             userView.game.round.trump.bidder = .north
             userView.updateScores()
             

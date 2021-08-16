@@ -42,12 +42,13 @@ struct EndRoundView: View {
             showView = false
             action = .startNewRound
         }
-        .onAppear {
+        // TODO: - maybe put back if a multiplayer as can't have a multiple people starting or waiting
+        /* .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay * 2 ) {
                 showView = false
                 action = .startNewRound
             }
-        }
+        } */
     }
 }
 

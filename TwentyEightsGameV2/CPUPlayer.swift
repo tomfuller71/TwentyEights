@@ -13,10 +13,7 @@ class CPUPlayer {
     private var game: GameController
     
     /// Respond to game active seat changing
-    private var activeCPUSeat: Seat? { didSet { takeAction() } }
-    
-    /// Respond to action suggested by game AI
-    private var cpuPlayerAction: PlayerAction? { didSet { updateGame() } }
+    private var activeCPUSeat: Seat?
     
     private var activeCancellable: AnyCancellable?
     
@@ -35,77 +32,74 @@ class CPUPlayer {
         self.activeCancellable = self.game.$active.sink { seat in
             if self.game.players[seat]!.playerType == .localCPU {
                 self.activeCPUSeat = seat
+                self.takeAction()
             }
         }
     }
 }
 
 extension CPUPlayer {
-    //MARK: - React methods
+    //MARK: - CPU Player action
     private func takeAction() {
+        let seat = activeCPUSeat!
+        let actionType: PlayerAction.ActionType =  getActionType(seat)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay) {
+            self.game.respondToPlayerAction(
+                PlayerAction(seat: seat, type: actionType)
+            )
+        }
+    }
+        
+    private func getActionType(_ seat: Seat) -> PlayerAction.ActionType {
         // Take action if seat set to non-nil value
         if isBidding {
-            makeBid()
+            return makeBid()
         }
         // Otherwise play in trick
+        else if seatShouldCallTrump(seat) {
+            return .callForTrump
+        }
         else {
-            playInTrick()
+           return playInTrick(seat)
         }
     }
     
-    private func updateGame() {
-        if let action = cpuPlayerAction {
-            DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay) {
-                self.game.respondToPlayerAction(action)
-            }
-        }
-    }
-    
-    // MARK:-  AI playing
-    private func makeBid() {
+    private func makeBid() -> PlayerAction.ActionType {
         let suggestedBid = selectBestBid()
-        let stage = game.round.bidding.stage
         
-        if var bid = suggestedBid {
-            bid.stage = stage
-            cpuPlayerAction = PlayerAction(seat: activeCPUSeat!, type: .makeBid(bid))
+        if let bid = suggestedBid {
+            return .makeBid(bid)
         }
         else {
-            cpuPlayerAction = PlayerAction(seat: activeCPUSeat!, type: .pass(stage: stage))
-        }
-        
-    }
-    
-    private func callTrump() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay) {
-            self.game.respondToPlayerAction(PlayerAction(seat: self.activeCPUSeat!, type:.callForTrump))
+            return .pass(stage: game.round.bidding.stage)
         }
     }
     
-    private func playInTrick() {
-        let seat = activeCPUSeat!
+    private func seatShouldCallTrump(_ seat: Seat) -> Bool {
+        guard game.round.canSeatCallTrump(seat) && game.seatJustCalledTrump == nil else {
+            return false
+        }
+        return true
+    }
+    
+    
+    private func playInTrick(_ seat: Seat) -> PlayerAction.ActionType {
+        let eligibleCards = game.round.getEligibleCards(
+            for: seat,
+            seatJustCalled: game.seatJustCalledTrump != nil
+        )
         
-        // Call trump if you can (unless already just called)
-        if game.round.canSeatCallTrump(seat) && game.seatJustCalledTrump == nil {
-            cpuPlayerAction =  PlayerAction(seat: seat, type: .callForTrump)
+        if eligibleCards.count == 1 {
+            return .playCardInTrick(eligibleCards[0])
         }
         else {
-            let eligibleCards = game.round.getEligibleCards(
-                for: seat,
-                seatJustCalled: game.seatJustCalledTrump != nil
-            )
-            
-            if eligibleCards.count == 1 {
-                cpuPlayerAction = PlayerAction(seat: seat, type: .playCardInTrick(eligibleCards[0]))
-            }
-            else {
-                let bestCard = selectBestCardToPlay(from: eligibleCards)
-                cpuPlayerAction =  PlayerAction(seat: seat, type: .playCardInTrick(bestCard))
-            }
+            let bestCard = selectBestCardToPlay(from: eligibleCards)
+            return .playCardInTrick(bestCard)
         }
     }
     
-    // MARK:- AI common fs / comp vars
+    // MARK:- Commmon computed properties & methods
     
     /// True if the game is currently in either the first or second stage of bidding
     private var isBidding: Bool {
@@ -118,7 +112,7 @@ extension CPUPlayer {
     /// Returns true is the provided Seat is the bidder
     private var isBidder: Bool {
         if let seat = activeCPUSeat {
-            return seat == game.round.bidding.bidder
+            return seat == game.round.bidding.winningBid?.bidder
         }
         else {
             return false
@@ -139,19 +133,146 @@ extension CPUPlayer {
 
 
 extension CPUPlayer {
-    //MARK: - Bidding
+    //MARK: - AI Bidding
     
-    //Placeholder for proper bidding func
+    /*
+     - Using arbitary pseudo logic to score the bidding value of a hand (its bid points) and the best card to select as a trump.
+     Method calculates a  difference from the mean expected bidPoints in a hand and the actual bidPoints in a hand,
+     and then uses that delta as a increment to the min bid.
+     
+     - To calculate "bidPoints" only two factors are considered; the honor point values of the actual cards, and additional points
+     for long suits (as it is assumed that they will be the trump).
+     
+     - If game.defaults UserDefaults key is set to isCautiousBidder then the bidPoints evalution reduces the bidPoints if a suit has a singleton non Jack honor card
+     
+     - The logic for selected the card is simple.  Select the lowest card of the suit with the most bid points, and if two suits
+     share the same # of bid points then pick the longest of those suits.
+     
+      - In deciding to bid of pass the simple logic is used
+         - only bid if expected point are more than the minBidBuffer above the current minBid
+         - if you can pass do so unless you are above the threshold
+     */
+    
+ /// Select the best bid to make or return nil to pass
     private func selectBestBid() -> Bid? {
-        return nil
+        let minBid: Int = game.round.bidding.bidMinForSeat(activeCPUSeat!)
+        
+        var suggestedBid: Bid = suggestBid()
+        
+        var overBidThreashold: Bool { ((minBid + _28s.minBidBufffer) < suggestedBid.points) }
+        
+        if !overBidThreashold {
+            if activeCPUCanPass {
+                return nil
+            }
+            else {
+                suggestedBid.points = minBid
+            }
+        }
+        return suggestedBid
     }
-
+    
+    
+    /// Whether the activeCPU player can pass
+    private var activeCPUCanPass: Bool {
+        activeCPUSeat != game.round.starting || game.round.bidding.winningBid != nil
+    }
+    
+    /// Determine a suggested bid
+    private func suggestBid() -> Bid {
+        let hand = game.round.hands[activeCPUSeat!]
+        let handEvaluation = evaluateHand(hand: hand)
+        
+        var expectedPointsForStage: Double {
+            if game.round.stage == .bidding(.first) {
+                return Double(_28s.pointsInDeck) / 8.0
+            }
+            else {
+                return Double(_28s.pointsInDeck) / 4.0
+            }
+        }
+        
+        let bidDelta: Double = handEvaluation.points - expectedPointsForStage
+        
+        // Calculate round up Int bid based on mean combined team honor points of 14 plus delta
+        let bidpoints = Int( (14.0 + bidDelta).rounded(.up) )
+        
+        let selectedCard = hand.filter { $0.suit == handEvaluation.bestSuit }
+            .sorted { $0.face.rank < $1.face.rank }.first!
+        
+        return Bid(
+            points: bidpoints,
+            card: selectedCard, bidder: activeCPUSeat!
+            //stage: game.round.bidding.stage
+        )
+    }
+    
+    
+    /// Get the evaluated expected bid points for hand and best suit to Bid
+    private func evaluateHand(hand: Hand) -> (points: Double, bestSuit: Suit) {
+        assert(!hand.isEmpty, "Hand is empty cannot bid")
+        
+        struct BiddingSuitEvalution {
+            var suit: Suit
+            var suitCount: Int
+            var points: Double
+        }
+        
+        let isCautiousBidder = game.defaults.bool(forKey: "isCautiousBidder")
+        
+        let suits: Set<Suit> = hand.reduce(into: []) { result, card in
+            result.insert(card.suit)
+        }
+        
+        // Evaluate each suit in hand
+        let evaluations: [BiddingSuitEvalution] = suits.reduce(into: []) { result, suit in
+            let suitCards: [Card] = hand.filter { $0.suit == suit }
+            let count = suitCards.count
+            let excessSuitCards: Double = max(0.0, Double(count - _28s.extraCardofSuitLimit))
+            
+            var points: Double = suitCards.reduce(into: 0) { result, card in
+                result += Double(card.face.points)
+            }
+            
+            points += excessSuitCards * _28s.bidPointsPerExtraCard
+            
+            // Change point evaluation if user defaults set to cautious Bidder and Singleton honor
+            if isCautiousBidder && count == 1 {
+                let singleton = suitCards.first!
+                if singleton.face != .jack {
+                    points -= points / 2
+                }
+            }
+            
+            result.append(BiddingSuitEvalution(suit: suit, suitCount: count, points: points))
+        }
+        
+        // Determine the best suit (most points or longest if all 0)
+        var bestSuit: Suit {
+            let bestEvalByPoints = evaluations.sorted { $0.points > $1.points }.first!
+            
+            if bestEvalByPoints.points > 0 {
+                return bestEvalByPoints.suit
+            }
+            else {
+                return evaluations.sorted { $0.suitCount > $1.suitCount }.first!.suit
+            }
+        }
+        
+        // Sum the total points in hand
+        let totalPoints: Double = evaluations.reduce(into: 0.0) { result, eval in
+            result += eval.points
+        }
+ 
+        return (points: totalPoints, bestSuit: bestSuit)
+    }
+    
 }
 
 
 
 extension CPUPlayer {
-    //MARK: - Playing in Trick
+    //MARK: - AI Playing in Trick
     /*
      - The best card to play is the one that yields the highest EV of honor points for the team
      
@@ -274,7 +395,11 @@ extension CPUPlayer {
                     + suitAnalysis[suit][seat.partnerGroup].expectedPoints.losing
                     + suitAnalysis[suit][seat.partnerGroup.opposingTeam].expectedPoints.winning)
             
-            if trickPointValue.winPoints > 7 || trickPointValue.losePoints > 7 {
+            if trickPointValue.winPoints > 7 && game.seatJustCalledTrump != nil
+                || trickPointValue.winPoints == .nan
+                || trickPointValue.losePoints > 7 && game.seatJustCalledTrump != nil
+                || trickPointValue.losePoints == .nan
+            {
                 print("Something ain't right")
             }
 
@@ -291,7 +416,7 @@ extension CPUPlayer {
                     min(1,(trumpChances.partner + trumpChances.opponent)) * 100
                 )
                 + "p: \(String(format: "%.1f%%", trumpChances.partner  * 100))"
-                + "o: \(String(format: "%.1f%%", trumpChances.opponent  * 100))"
+                + " o: \(String(format: "%.1f%%", trumpChances.opponent  * 100))"
                 + " Op>T \(String(format: "%.1f%%", chanceOpTrumpHigher  * 100))"
                 + " Win: \(String(format: "%.1f%%", chanceTeamWinning  * 100))"
                 + " TrickPoints - win: \(String(format: "%.2f%", trickPointValue.winPoints))"
@@ -348,11 +473,17 @@ extension CPUPlayer {
             .filter { $0.face.points > 0 }
             .map { $0.face.points }
         
-        let honorPoints: Int = nonSuitHonorCards.reduce(0, +)
-        let avgHonorPoints = Double(honorPoints) / Double(nonSuitHonorCards.count)
-        let proportionHonours = Double(nonSuitHonorCards.count) / Double(nonSeatNonSuitCards.count)
-        
-        return ExpectedPoints(winning: avgHonorPoints, losing: proportionHonours * avgHonorPoints)
+        // Provided at least one honor card remaining calc the expected points
+        if nonSuitHonorCards.isEmpty {
+            return ExpectedPoints(winning: 0, losing: 0)
+        }
+        else {
+            let honorPoints: Int = nonSuitHonorCards.reduce(0, +)
+            let avgHonorPoints = Double(honorPoints) / Double(nonSuitHonorCards.count)
+            let proportionHonours = Double(nonSuitHonorCards.count) / Double(nonSeatNonSuitCards.count)
+            
+            return ExpectedPoints(winning: avgHonorPoints, losing: proportionHonours * avgHonorPoints)
+        }
     }
     
     /// Returns a dictionary hold for each suit  a tuple of count or remaining cards and the top rank in other players hands
@@ -377,18 +508,23 @@ extension CPUPlayer {
         suit: Suit,
         remainingSuitCards: OtherHands
     ) -> Int {
-        // Expected number of trumps is the rounded average of the suit counts for suits that could possibly trump the card
-        // i.e. exclude the card suit or any suits with 0 remaining cards as they obviously can't trump the card
-        let non0CountsForUnplayedSuits: [Int] = remainingSuitCards
-            .filter { (key: Suit, value: (count: Int, topRank: Int, honorPoints: Int)) in
-                key != suit && value.count > 0
+        // Expected number of trumps is the rounded average of the suit counts for suits that could
+        // possibly trump the card
+        
+        var potentialSuitCount: Int = 0
+        var totalCount: Int = 0
+        
+        for suit in Suit.allCases {
+            let suitCount = remainingSuitCards[suit]!.count
+            let couldBeTrumpSuit = !game.round.suitsKnownCantBeTrump.contains(suit)
+            
+            if suitCount > 0 && couldBeTrumpSuit {
+                totalCount += suitCount
+                potentialSuitCount += 1
             }
-            .values
-            .map { $0.count }
+        }
         
-        let sumNon0Counts = non0CountsForUnplayedSuits.reduce(0, +)
-        
-        let roundedAverage = Double(sumNon0Counts / non0CountsForUnplayedSuits.count).rounded()
+        let roundedAverage = Double(totalCount / potentialSuitCount).rounded()
         return Int(roundedAverage)
     }
     
@@ -400,7 +536,7 @@ extension CPUPlayer {
             || (game.round.trump.isCalled && card.suit == game.round.trump.card?.suit)
         
         let winningRank = (card.currentRank > suitTopRank
-                            || game.round.currentTrick.played.count == 3)
+                            || game.round.currentTrick.seatActions.count == 3)
             && card.currentRank > game.round.currentTrick.winningRank
         
         let cardWins = validSuit && winningRank
@@ -497,7 +633,7 @@ extension CPUPlayer {
     
     private func otherPlayerCards() -> [Card] {
         var cards = game.round.hands.remainingCardsExcludingSeat(activeCPUSeat!)
-        if game.round.trump.bidder != activeCPUSeat && !game.round.trump.beenPlayed {
+        if game.round.trump.bidder != activeCPUSeat && !game.round.trump.isCalled {
             cards.append(game.round.trump.card!)
         }
         return cards
@@ -511,7 +647,7 @@ extension CPUPlayer {
         otherHandsCards: OtherHands
     ) ->  BestSuitToPlayAnalysis {
         // Guard last in trick
-        guard game.round.currentTrick.played.count != 3 else { return BestSuitToPlayAnalysis() }
+        guard game.round.currentTrick.seatActions.count != 3 else { return BestSuitToPlayAnalysis() }
         
         let remainingCards = otherPlayerCards()
         let remainingHonorCards = remainingCards.filter { $0.face.points > 0 }
@@ -565,7 +701,7 @@ extension CPUPlayer {
             )
             
             // Estimate of remaining trumps in other hands is either known or estimated based on expected distrubution of suit cards
-            var trumpCount: Int
+            var trumpCount: Int = 0
             if trumpKnown {
                 trumpCount = otherHandsCards[trump]!.count
             }
@@ -576,11 +712,6 @@ extension CPUPlayer {
                 )
             }
             
-            // Count modified if the bidder already played in trick has a hidden trump
-            let bidderPlayed = !(isBidder && following.seats.contains(game.round.trump.bidder!))
-            if  !game.round.trump.beenPlayed && bidderPlayed {
-                trumpCount -= 1
-            }
             
             // Then iterate over the teams yet to play in the trick
             var teamEvaluations = TeamsEvaluations()
@@ -641,21 +772,28 @@ extension CPUPlayer {
                 
                 // Chance for single hand cutting in the group that has a pooled chance to cut
                 var singleUnknownCutChance: Double {
-                    var chanceHand = hyperGeoProb(
+                    
+                    let chanceOneHandEmpty = hyperGeoProb(
                         success: 0,
                         successPopulation: suitCount,
                         sample: handSize,
-                        population: remainingCards.count - handSize)
+                        population: remainingCards.count)
                     
-                    if unKnownIfEmpty.count > 1 {
-                        chanceHand =  2 * chanceHand - hyperGeoProb(
+                    // As the chance of a cut is calculated as #unknownHands * singleChanceCut
+                    // then if both are unknown we need to eliminate the % overlapping possibility
+                    // that both unknown hands can cut
+                    if unKnownIfEmpty.count == 2 {
+                        let chanceBothEmpty = hyperGeoProb(
                             success: 0,
                             successPopulation: suitCount,
                             sample: handSize * 2,
-                            population: remainingCards.count - handSize)
+                            population: remainingCards.count)
+                        
+                        return  chanceOneHandEmpty - ( chanceBothEmpty / 2 )
                     }
-                    
-                    return chanceHand / Double(unKnownIfEmpty.count)
+                    else {
+                        return chanceOneHandEmpty
+                    }
                 }
                 
                 // Combining the probabilities for each discrete set
@@ -982,7 +1120,7 @@ extension CPUPlayer {
             var denominator = 1.0
             
             
-            for n in 0...honorCards.count {
+            for n in 0 ... (honorCards.count - 1)  {
                 
                 let chanceOfPooledNCards = hyperGeoProb(
                     success: n,
