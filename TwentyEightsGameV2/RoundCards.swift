@@ -9,11 +9,45 @@ import Foundation
 
 /// Shared round cards instance (just to simplify nested structs)
 struct RoundCards {
-    private var deal: [Card] = Deck.deck.shuffled()
+    private var deal: [Card] =  RoundCards.deal()
     var hands: [Seat : Hand] = Seat.allCases.reduce(into: [:]) {$0[$1] = [] }
     
     subscript(_ seat: Seat) -> Hand {
         hands[seat]!
+    }
+    
+    /// Returns the cards in hand (excluding any unrevealed Trump) for all hands other than the given seat
+    func remainingCardsExcludingSeat(_ seat: Seat) -> [Card] {
+        var cards = [Card]()
+        for hand in Seat.allCases {
+            if hand != seat {
+                cards.append(contentsOf: hands[hand]!)
+            }
+        }
+        return cards
+    }
+    
+    
+    /// Returns true if the given seat has only one card in hand which is an honor card
+    func honorPointCardsFor(seat: Seat, suit: Suit) -> [Card] {
+        hands[seat]!.filter { $0.suit == suit && $0.face.points > 0 }
+    }
+    
+    /// Returns true if the hand of given seat has only one sole (shake) honor card of the given suit
+    func hasSoleHonorCard(seat: Seat, suit: Suit) -> Bool {
+        hands[seat]!.filter { $0.suit == suit }.count == honorPointCardsFor(seat: seat, suit: suit).count
+    }
+    
+    /// Returns a shuffled deck of the 28 cards used in game of 28s
+    static func deal() -> [Card] {
+        var newDeck: [Card] = []
+        
+        for suit in Suit.allCases {
+            for face in Face.allCases {
+                newDeck.append(Card(face: face, suit: suit))
+            }
+        }
+        return newDeck.shuffled()
     }
 }
  
@@ -51,19 +85,11 @@ extension RoundCards {
         }
     }
     
+    /// Returns the provided trump card to the given bidder
     mutating func returnTrumpToHand(trump: Card, bidder: Seat) {
         hands[bidder]!.append(trump)
     }
-    
-    func remainingCardsExcludingSeat(_ seat: Seat) -> [Card] {
-        var cards = [Card]()
-        for hand in Seat.allCases {
-            if hand != seat {
-                cards.append(contentsOf: hands[hand]!)
-            }
-        }
-        return cards
-    }
+
 }
 
     

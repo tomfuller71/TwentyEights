@@ -9,34 +9,32 @@ import SwiftUI
 
 struct UserCardsView: View {
     var userCards: UserView.UserCardsModel
-    var cardSize: CGSize
+    @Environment(\.cardValues) var cardValues
     @Binding var playerAction: PlayerAction.ActionType?
+    
+    var showPlaceholderOnly: Bool { userCards.isBidding && userCards.trump == nil }
     
     var body: some View {
         HStack {
-            HandView(handView: userCards, cardSize: cardSize, playerAction: $playerAction)
+            HandView(handView: userCards, playerAction: $playerAction)
             
             if userCards.isBidding || userCards.trump != nil {
                 ZStack {
-                    TrumpPlaceHolderView(cardSize: cardSize)
+                    TrumpPlaceHolderView()
                     if let trump = userCards.trump {
                         TrumpView(
                             trump: trump,
-                            isBidding: userCards.isBidding,
-                            cardSize: cardSize,
-                            isActive: userCards.isActive,
+                            userActiveAndBidding: userCards.isBidding && userCards.isActive,
                             playerAction: $playerAction
                         )
                     }
                 }
                 .zIndex(showPlaceholderOnly ? -1 : 1)
-                .frame(width: cardSize.width)
             }
         }
-        .frame(height: cardSize.height)
+        .padding([.leading, .trailing], 7)
     }
     
-    var showPlaceholderOnly: Bool { userCards.isBidding && userCards.trump == nil }
 }
 
 struct UserCardsView_Previews: PreviewProvider {
@@ -48,9 +46,10 @@ struct UserCardsView_Previews: PreviewProvider {
         
         ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)) {
             BackgroundView()
-            UserCardsView(userCards: handView, cardSize:_28s.cardSize_screenHeight_667, playerAction: .constant(nil))
+            UserCardsView(userCards: handView, playerAction: .constant(nil))
                 .padding([.leading, .trailing, .bottom], 7)
         }
+        .previewFor28sWith(.iPhone8)
         
     }
 }

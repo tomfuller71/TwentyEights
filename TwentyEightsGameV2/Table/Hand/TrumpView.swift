@@ -9,9 +9,9 @@ import SwiftUI
 
 struct TrumpView: View {
     var trump: Card
-    var isBidding: Bool
-    var cardSize: CGSize
-    var isActive: Bool
+    var userActiveAndBidding: Bool
+    
+    @Environment(\.cardValues) var cardValues
     @Binding var playerAction: PlayerAction.ActionType?
     @State var pressDrag: PressingDragGesture.Value = .inactive
     
@@ -24,6 +24,7 @@ struct TrumpView: View {
                 }
         }
         .shadow(color: pressDrag.isActive ? .black : .clear, radius: 5, x: 5, y: 5)
+        .frame(width: cardValues.size.width, height: cardValues.size.height)
         .offset(limitOffset)
         .onPressingDragGesture { value in
             if canUnSelect(offset: value.offset) {
@@ -37,7 +38,7 @@ struct TrumpView: View {
     }
     
     private var limitOffset: CGSize {
-        guard isActive && isBidding else { return .zero}
+        guard userActiveAndBidding else { return .zero}
         
         return CGSize(
             width: min(pressDrag.offset.width,0),
@@ -46,7 +47,7 @@ struct TrumpView: View {
     }
     
     private func canUnSelect(offset: CGSize) -> Bool {
-        offset.width < -cardSize.width && isActive && isBidding
+        offset.width < -cardValues.size.width && userActiveAndBidding
     }
 }
 
@@ -54,19 +55,32 @@ struct TrumpView: View {
 
 struct TrumpView_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack {
-            BackgroundView()
-            
-            VStack(spacing: 15) {
-                TrumpView(
-                    trump: Card(face: .ace, suit: .spade),
-                    isBidding: true,
-                    cardSize: _28s.cardSize_screenHeight_667,
-                    isActive: true,
-                    playerAction: .constant(nil)
-                )
+        Group {
+            ZStack {
+                BackgroundView()
+                
+                VStack(spacing: 0) {
+                    TrumpView(
+                        trump: Card(face: .ace, suit: .spade),
+                        userActiveAndBidding: true,
+                        playerAction: .constant(nil)
+                    )
+                }
             }
-            .frame(width: _28s.cardSize_screenHeight_667.width, height: _28s.cardSize_screenHeight_667.height)
+            .previewFor28sWith(.iPhone8)
+            
+            ZStack {
+                BackgroundView()
+                
+                VStack(spacing: 0) {
+                    TrumpView(
+                        trump: Card(face: .ace, suit: .spade),
+                        userActiveAndBidding: true,
+                        playerAction: .constant(nil)
+                    )
+                }
+            }
+            .previewFor28sWith(.iPadPro_12_9)
         }
     }
 }

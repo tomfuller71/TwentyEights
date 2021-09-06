@@ -10,7 +10,8 @@ import SwiftUI
 struct HandView: View {
     //MARK:- Properties
     var handView: UserView.UserCardsModel
-    var cardSize: CGSize
+    @Environment(\.cardValues) var cardValues
+    
     @Binding var playerAction: PlayerAction.ActionType?
     @State private var pressDrag: [String : PressingDragGesture.Value] = [:]
     
@@ -25,15 +26,18 @@ struct HandView: View {
                     
                     CardView(card: card)
                         .modifier(ModifyCard(modify: modify, position: position, offset: offset))
-                        .onPressingDragGesture { value in update(
-                            gesture: value,
-                            position: position,
-                            handWidth: proxy.size.width,
-                            card: card)
+                        .onPressingDragGesture { value in
+                            update(
+                                gesture: value,
+                                position: position,
+                                handWidth: proxy.size.width,
+                                card: card
+                            )
                         }
                 }
             }
         }
+        .frame(height: cardValues.size.height)
         .onAppear {
             for card in handView.hand {
                 pressDrag[card.id] = .inactive
@@ -42,7 +46,7 @@ struct HandView: View {
     }
     
     //MARK: - Private view properties
-    private let spacer: CGFloat = 10
+    private let spacer: CGFloat = _28s.uiSpacerBetweenCards
     
     ///View modifier to apply the various conditional view modifiers
     private struct ModifyCard: ViewModifier {
@@ -87,18 +91,20 @@ extension HandView {
         var cardSelected = false
         if gesture.offset != .zero {
             if handView.isBidding {
-                cardSelected = gesture.offset.width > ((handWidth - position.x) + cardSize.width / 2)
+                cardSelected = gesture.offset.width > ((handWidth - position.x) + cardValues.size.width / 2)
             }
             else {
-                cardSelected = gesture.offset.height < -cardSize.height ||
-                                    gesture.predictedOffset.height < -cardSize.height * 2
+                cardSelected = gesture.offset.height < -cardValues.size.height ||
+                                    gesture.predictedOffset.height < -cardValues.size.height * 2
             }
         }
         
         if cardSelected {
             print("Taking Action \(card.id)")
             pressDrag[card.id] = .inactive
-            playerAction = handView.isBidding ? .selectATrump(card) : .playCardInTrick(card)
+            if playerAction == nil {
+                playerAction = handView.isBidding ? .selectATrump(card) : .playCardInTrick(card)
+            }
         }
         else {
             pressDrag[card.id] = gesture
@@ -112,12 +118,12 @@ extension HandView {
         let countAsFloat = CGFloat(handView.hand.count)
         
         // delta to view width to the ideal spacing for the cards in hand
-        let viewWidthDelta = (cardSize.width * countAsFloat) + (spacer * (countAsFloat - 1)) - proxy.size.width
+        let viewWidthDelta = (cardValues.size.width * countAsFloat) + (spacer * (countAsFloat - 1)) - proxy.size.width
         
         // Preparing per card return values
         let overLap = (viewWidthDelta > 0) ? viewWidthDelta / (countAsFloat - 1) : 0
-        let initial = (viewWidthDelta < 0) ? (viewWidthDelta / 2 * -1) + (cardSize.width / 2) : cardSize.width / 2
-        let perCard =  cardSize.width + spacer - overLap
+        let initial = (viewWidthDelta < 0) ? (viewWidthDelta / 2 * -1) + (cardValues.size.width / 2) : cardValues.size.width / 2
+        let perCard =  cardValues.size.width + spacer - overLap
         
         // Complete the inHand CGPoint position
         let yposition: CGFloat = (proxy.size.height / 2)
@@ -141,14 +147,26 @@ struct HandView_Previews: PreviewProvider {
         let eligible = hand.filter { $0.suit == .heart }
         let handView = UserView.UserCardsModel(hand: hand, eligibleCards: eligible, trump: nil, isBidding: false)
         
-        ZStack {
-            BackgroundView()
-            
-            VStack {
-                HandView(handView: handView, cardSize: _28s.cardSize_screenHeight_667, playerAction: .constant(nil) )
+        Group {
+            ZStack {
+                BackgroundView()
+                
+                VStack {
+                    HandView(handView: handView, playerAction: .constant(nil) )
+                }
+                .padding([.leading, .trailing], 7)
             }
-            .padding([.leading, .trailing], 7)
-            .frame(height: _28s.cardSize_screenHeight_667.height)
+            .previewFor28sWith(.iPhone8)
+            
+            ZStack {
+                BackgroundView()
+                
+                VStack {
+                    HandView(handView: handView, playerAction: .constant(nil) )
+                }
+                .padding([.leading, .trailing], 7)
+            }
+            .previewFor28sWith(.iPadPro_12_9)
         }
     }
 }

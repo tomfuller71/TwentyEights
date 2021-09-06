@@ -9,13 +9,13 @@ import SwiftUI
 
 struct SeatView: View {
     let seats: UserView.SeatSelectionViewModel
-    let cardSize: CGSize
+    
     
     var body: some View {
         ZStack {
-            SeatPlaceHoldersView(cardSize: cardSize)
-            SeatSelectionsView(selections: seats.selections, highlightSeat: seats.highlightSeat, cardSize: cardSize)
-            ActiveSeatIndictorView(indicatorAngle: seats.indicatorAngle, size: cardSize.height * 0.01)
+            SeatPlaceHoldersView()
+            SeatSelectionsView(selections: seats.selections, highlightSeat: seats.highlightSeat)
+            ActiveSeatIndictorView(indicatorAngle: seats.indicatorAngle)
         }
     }
 }
@@ -41,8 +41,9 @@ struct SeatView_Previews: PreviewProvider {
         
         ZStack {
             BackgroundView()
-            SeatView(seats: model, cardSize: _28s.cardSize_screenHeight_667)
+            SeatView(seats: model)
         }
+        .previewFor28sWith(.iPad)
     }
 }
 

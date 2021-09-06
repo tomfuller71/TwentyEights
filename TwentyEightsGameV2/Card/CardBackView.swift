@@ -8,44 +8,38 @@
 import SwiftUI
 
 struct CardBackView: View {
+    @Environment(\.cardValues) var cardValues
+    var width: CGFloat { cardValues.size.width }
+    var height: CGFloat { cardValues.size.height }
     
     var body: some View {
-        
-        GeometryReader { proxy in
+        ZStack {
+            RoundedRectangle(cornerRadius: width * _28s.card.cornerRadiusRatio)
+                .strokeBorder(_28s.card.strokeColor, lineWidth: width * _28s.card.strokeRatio)
             
-            let width = proxy.size.width
+            RoundedRectangle(cornerRadius: width * _28s.card.cornerRadiusRatio)
+                .inset(by: width * _28s.card.strokeRatio)
+                .fill(Color.white)
             
-            ZStack {
-                RoundedRectangle(cornerRadius: width * _28s.card.cornerRadiusRatio)
-                    .strokeBorder(_28s.card.strokeColor, lineWidth: width * _28s.card.strokeRatio)
-                
-                RoundedRectangle(cornerRadius: width * _28s.card.cornerRadiusRatio)
-                    .inset(by: width * _28s.card.strokeRatio)
-                    .fill(Color.white)
-                    
-                AngularGradient.cayenneSteel
-                    .cornerRadius(width * _28s.card.cornerRadiusRatio * (1 - insetScale))
-                    .scaleEffect(x: 1 - insetScale,
-                                 y: 1 - (insetScale * _28s.card.aspect.width)
-                    )
-                
-                Circle()
-                    .fill(Color.white)
-                    .scaleEffect(1 - (insetScale * 3))
-                
-                Circle()
-                    .stroke(lineWidth: width * _28s.card.strokeRatio)
-                    .overlay(
-                        Image("smallJoker")
-                            .resizable()
-                            .scaledToFit()
-                            .scaleEffect(imageScale)
-                    )
-                    .scaleEffect(1 - (insetScale * 4))
-                
-            }
+            AngularGradient.cayenneSteel
+                .cornerRadius(width * _28s.card.cornerRadiusRatio * (1 - insetScale))
+                .scaleEffect(x: 1 - insetScale,
+                             y: 1 - (insetScale * _28s.card.aspect.width)
+                )
+            
+            Circle()
+                .fill(Color.white)
+                .scaleEffect(1 - (insetScale * 3))
+            
+            Circle()
+                .stroke(lineWidth: width * _28s.card.strokeRatio)
+                .overlay(
+                    Text("28")
+                        .font(.custom("Copperplate", fixedSize: width * imageScale))
+                )
+                .scaleEffect(1 - (insetScale * 4))
         }
-        .aspectRatio(_28s.card.aspect, contentMode: .fit)
+        .frame(width: cardValues.size.width, height: cardValues.size.height)
         .drawingGroup()
     }
     
@@ -55,22 +49,27 @@ struct CardBackView: View {
 
 struct CardBackView_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack {
-            BackgroundView()
-            VStack(spacing: 20) {
-                Spacer()
-                Spacer()
-                CardBackView()
-                    .frame(height: 250)
-                Spacer()
-                Text("Standard size").foregroundColor(.white)
-                HStack(spacing: 30) {
+        Group {
+            ZStack {
+                BackgroundView()
+                VStack(spacing: 20) {
+                    Spacer()
+                    Text("Standard size").foregroundColor(.white)
                     CardBackView()
-                    CardView(card: Card(face: .eight, suit: .heart))
+                    Spacer()
                 }
-                .frame(height: _28s.cardSize_screenHeight_667.height)
-                Spacer()
             }
+            .previewFor28sWith(.iPhone8)
+            ZStack {
+                BackgroundView()
+                VStack(spacing: 20) {
+                    Spacer()
+                    Text("Standard size").foregroundColor(.white)
+                    CardBackView()
+                    Spacer()
+                }
+            }
+            .previewFor28sWith(.iPadPro_12_9)
         }
     }
 }

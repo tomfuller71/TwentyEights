@@ -10,7 +10,9 @@ import SwiftUI
 struct SeatSelectionsView: View {
     var selections: [PlayerAction]
     var highlightSeat: Seat?
-    var cardSize: CGSize
+    
+    
+    @Environment(\.cardValues) var cardValues
     
     var body: some View {
         GeometryReader { proxy in
@@ -21,16 +23,16 @@ struct SeatSelectionsView: View {
                             .glow(color: (highlightSeat == selection.seat ? Color.lemon : Color.clear))
                     }
                     else if case .makeBid(let bid) = selection.type {
-                        BidSeatView(points: bid.points, cardSize: cardSize)
+                        BidSeatView(points: bid.points, cardSize: cardValues.size)
                     }
                     else {
-                        BidSeatView(points: nil, cardSize: cardSize)
+                        BidSeatView(points: nil, cardSize: cardValues.size)
                     }
                 }
-                .frame(width: cardSize.width, height: cardSize.height)
+                .frame(width: cardValues.size.width, height: cardValues.size.height)
                 .position(
-                    x: proxy.center.x + (selection.seat.offsetPoint.x * cardSize.width),
-                    y: proxy.center.y + (selection.seat.offsetPoint.y * cardSize.height)
+                    x: proxy.center.x + (selection.seat.offsetPoint.x * cardValues.size.width),
+                    y: proxy.center.y + (selection.seat.offsetPoint.y * cardValues.size.height)
                 )
             }
         }
@@ -58,9 +60,9 @@ struct SeatSelectionsView_Previews: PreviewProvider {
             BackgroundView()
             SeatSelectionsView(
                 selections: selections,
-                highlightSeat: .north,
-                cardSize: _28s.cardSize_screenHeight_667
+                highlightSeat: .north
             )
         }
+        .previewFor28sWith(.iPhone8)
     }
 }

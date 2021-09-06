@@ -7,49 +7,47 @@
 
 import SwiftUI
 
-
-
 /// Playing card view
 struct CardView: View {
     let card: Card
+    @Environment(\.cardValues) var cardValues
+    
+    var width: CGFloat { cardValues.size.width }
+    var height: CGFloat { cardValues.size.height }
     
     var body: some View {
-        GeometryReader { proxy in
-            let width = proxy.size.width
-
-            ZStack {
-                Color.white.cornerRadius(width * _28s.card.cornerRadiusRatio)
-                RoundedRectangle(cornerRadius: width * _28s.card.cornerRadiusRatio)
-                    .strokeBorder(_28s.card.strokeColor, lineWidth: width * _28s.card.strokeRatio)
-                
-                let fontScale = width * sizeRatio
-                ZStack(alignment: .topLeading) {
-                    Color.clear
-                    CardCornerView(card: card, fontScale: fontScale)
-                        .padding([.leading], cornerPaddingRatio * width)
+        ZStack {
+            Color.white.cornerRadius(width * _28s.card.cornerRadiusRatio)
+            RoundedRectangle(cornerRadius: width * _28s.card.cornerRadiusRatio)
+                .strokeBorder(_28s.card.strokeColor, lineWidth: width * _28s.card.strokeRatio)
+            
+            let fontScale = width * sizeRatio
+            ZStack(alignment: .topLeading) {
+                Color.clear
+                CardCornerView(card: card, fontScale: fontScale)
+                    .padding([.leading], cornerPaddingRatio * width)
+            }
+            
+            ZStack(alignment: .bottomTrailing) {
+                Color.clear
+                CardCornerView(card: card, fontScale: fontScale)
+                    .rotationEffect(.degrees(180.0), anchor: .center)
+                    .padding([.trailing], cornerPaddingRatio * width)
+            }
+            Group {
+                if isCourtOrAce {
+                    CourtOrAceCenterView(card: card, fontSize: width * courtFontRatio)
                 }
-                
-                ZStack(alignment: .bottomTrailing) {
-                    Color.clear
-                    CardCornerView(card: card, fontScale: fontScale)
-                        .rotationEffect(.degrees(180.0), anchor: .center)
-                        .padding([.trailing], cornerPaddingRatio * width)
-                }
-                Group {
-                    if isCourtOrAce {
-                        CourtOrAceCenterView(card: card, fontSize: width * courtFontRatio)
-                    }
-                    else {
-                        CardInsertView(
-                            card: card,
-                            width: width * cardCenterWidthRatio,
-                            height: proxy.size.height * cardCenterHeightRatio
-                        )
-                    }
+                else {
+                    CardInsertView(
+                        card: card,
+                        width: width * cardCenterWidthRatio,
+                        height: height * cardCenterHeightRatio
+                    )
                 }
             }
         }
-        .aspectRatio(_28s.card.aspect, contentMode: .fit)
+        .frame(width: cardValues.size.width, height: cardValues.size.height)
         .drawingGroup()
     }
     
@@ -70,9 +68,10 @@ extension CardView {
         var body: some View {
             VStack {
                 Text(card.face.rawValue)
-                    .font(.system(size: fontScale)).tracking(compressTen)
+                    .font(.custom("system", fixedSize: fontScale)).tracking(compressTen)
+                
                 Text(card.suit.rawValue)
-                    .font(.custom("Copperplate", size: fontScale))
+                    .font(.custom("Copperplate", fixedSize: fontScale))
                     .offset(x: 0, y: suitTextOffset)
             }
             .foregroundColor(card.suit.suitColor)
@@ -98,7 +97,7 @@ extension CardView {
                         y: height * flash.yOffset
                     )
                     .foregroundColor(card.suit.suitColor)
-                    .font(.custom("Copperplate", size: width * fontScale))
+                    .font(.custom("Copperplate", fixedSize: width * fontScale))
             }
            .frame(width: width, height: height)
             
@@ -115,7 +114,7 @@ extension CardView {
             let text = card.face == .ace ? card.suit.rawValue : card.face.rawValue
             Text(text)
                 .foregroundColor(card.suit.suitColor)
-                .font(Font.custom("Academy Engraved LET", size: fontSize))
+                .font(Font.custom("Academy Engraved LET", fixedSize: fontSize))
                 .baselineOffset((-fontSize / 2))
         }
     }
@@ -123,42 +122,75 @@ extension CardView {
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack{
-            BackgroundView()
-            
-            VStack {
-                Spacer()
-                HStack{
-                    CardView(card: Card(face: .king, suit: .spade))
-                    CardView(card: Card(face: .queen, suit: .heart))
-                    CardView(card: Card(face: .jack, suit: .club))
-                }
-                .frame(height: _28s.cardSize_screenHeight_667.height)
+        Group {
+            ZStack{
+                BackgroundView()
                 
-                HStack {
-                    CardView(card: Card(face: .ace, suit: .heart))
-                    CardView(card: Card(face: .ace, suit: .club))
-                    CardView(card: Card(face: .ace, suit: .diamond))
+                VStack {
+                    Spacer()
+                    HStack{
+                        CardView(card: Card(face: .king, suit: .spade))
+                        CardView(card: Card(face: .queen, suit: .heart))
+                        CardView(card: Card(face: .jack, suit: .club))
+                    }
+                    
+                    HStack {
+                        CardView(card: Card(face: .ace, suit: .heart))
+                        CardView(card: Card(face: .ace, suit: .club))
+                        CardView(card: Card(face: .ace, suit: .diamond))
+                    }
+                    
+                    HStack{
+                        CardView(card: Card(face: .ace, suit: .spade))
+                        CardView(card: Card(face: .ten, suit: .heart))
+                        CardView(card: Card(face: .nine, suit: .club))
+                    }
+                    
+                    HStack{
+                        CardView(card: Card(face: .eight, suit: .diamond))
+                        CardView(card: Card(face: .seven, suit: .spade))
+                        CardBackView()
+                    }
+                    Spacer()
                 }
-                .frame(height: _28s.cardSize_screenHeight_667.height)
-                
-                HStack{
-                    CardView(card: Card(face: .ace, suit: .spade))
-                    CardView(card: Card(face: .ten, suit: .heart))
-                    CardView(card: Card(face: .nine, suit: .club))
-                }
-                .frame(height: _28s.cardSize_screenHeight_667.height)
-                
-                HStack{
-                    CardView(card: Card(face: .eight, suit: .diamond))
-                    CardView(card: Card(face: .seven, suit: .spade))
-                    CardBackView()
-                }
-                .frame(height: _28s.cardSize_screenHeight_667.height)
-                Spacer()
             }
+            .edgesIgnoringSafeArea(.all)
+            .previewFor28sWith(.iPhone8)
+            
+            ZStack{
+                BackgroundView()
+                
+                VStack {
+                    Spacer()
+                    HStack{
+                        CardView(card: Card(face: .king, suit: .spade))
+                        CardView(card: Card(face: .queen, suit: .heart))
+                        CardView(card: Card(face: .jack, suit: .club))
+                    }
+                    
+                    HStack {
+                        CardView(card: Card(face: .ace, suit: .heart))
+                        CardView(card: Card(face: .ace, suit: .club))
+                        CardView(card: Card(face: .ace, suit: .diamond))
+                    }
+                    
+                    HStack{
+                        CardView(card: Card(face: .ace, suit: .spade))
+                        CardView(card: Card(face: .ten, suit: .heart))
+                        CardView(card: Card(face: .nine, suit: .club))
+                    }
+                    
+                    HStack{
+                        CardView(card: Card(face: .eight, suit: .diamond))
+                        CardView(card: Card(face: .seven, suit: .spade))
+                        CardBackView()
+                    }
+                    Spacer()
+                }
+            }
+            .edgesIgnoringSafeArea(.all)
+            .previewFor28sWith(.iPadPro_12_9)
         }
-        .edgesIgnoringSafeArea(.all)
     }
 }
 

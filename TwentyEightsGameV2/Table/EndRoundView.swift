@@ -8,33 +8,47 @@
 import SwiftUI
 
 struct EndRoundView: View {
-    let userTeamWon: Bool
-    let gamePoints: Int
+    var userTeamWon: Bool
+    var updatedTeamScore: Int
+    var gamePoints: Int
+    @Environment(\.cardValues) var cardValues
+    
+    
+    var viewScore: Int {
+        var score = updatedTeamScore
+        if  userTeamWon {
+            score -= gamePoints
+            score += changeScorePoints
+        }
+        else {
+            score += gamePoints
+            score -= changeScorePoints
+        }
+        return score
+    }
+    
+    @State var changeScorePoints: Int = 0
+    
     @Binding var action: PlayerAction.ActionType?
     @Binding var showView: Bool
     
     var body: some View {
-    
+        
         VStack(spacing: nil) {
             Text(userTeamWon ? "Congratulations!" : "Unlucky!").fontWeight(.bold)
-            Text(userTeamWon ? "You won" : "You lost")
-                
-            HStack(spacing: 5) {
-                ForEach(0 ..< gamePoints, id: \.self) { _ in
-                    Image("smallJoker")
-                        .frame(width: 30, height: 30)
-                        .scaleEffect(30/309)
-                }
-            }
+            Text(userTeamWon ? "You won \(gamePoints) points" : "You lost \(gamePoints) points")
+            
+            TeamScoreGaugeView(points: viewScore, roundEnded: true)
+            
             Text("Tap to start new game")
                 .padding([.top],5)
                 .foregroundColor(.blue)
         }
-        .frame(minWidth: 290)
+        .frame(minWidth: cardValues.size.width * 3)
         .padding()
         .foregroundColor(Color.lead)
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: cardValues.size.width * 0.33)
                 .fill(Color.offWhite)
                 .shadow(color: .black, radius: 5, x: 3, y: 5)
         )
@@ -42,23 +56,30 @@ struct EndRoundView: View {
             showView = false
             action = .startNewRound
         }
-        // TODO: - maybe put back if a multiplayer as can't have a multiple people starting or waiting
-        /* .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay * 2 ) {
-                showView = false
-                action = .startNewRound
+        .onAppear {
+            withAnimation(.default.delay(1)){
+                changeScorePoints += gamePoints
             }
-        } */
+        }
     }
 }
 
 struct EndRoundView_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack {
-            BackgroundView()
+        Group {
+            ZStack {
+                BackgroundView()
 
-            EndRoundView(userTeamWon: true, gamePoints: 2, action: .constant(nil), showView: .constant(true))
+                EndRoundView(userTeamWon: true, updatedTeamScore: 4, gamePoints: 2, action: .constant(nil), showView: .constant(true))
+            }
+            .previewFor28sWith(.iPhone8)
+            
+            ZStack {
+                BackgroundView()
+                
+                EndRoundView(userTeamWon: true, updatedTeamScore: 4, gamePoints: 2, action: .constant(nil), showView: .constant(true))
+            }
+            .previewFor28sWith(.iPadPro_12_9)
         }
-        .font(.copperPlate)
     }
 }

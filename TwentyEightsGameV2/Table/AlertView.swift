@@ -41,24 +41,32 @@ struct AlertView: View {
 struct StatusView_Previews: PreviewProvider {
     static var previews: some View {
         
-        ZStack {
-            BackgroundView()
-            VStack {
-                AlertView(
-                    viewModel: UserView.AlertViewModel(
-                        statusText: "Text should be viewable",
-                        userCanCallTrump: false, hideView: false),
-                    playerAction: .constant(nil)
-                )
-                
-                AlertView(
-                    viewModel: UserView.AlertViewModel(
-                        statusText: "Text should be overwritten",
-                        userCanCallTrump: false, hideView: false),
-                    playerAction: .constant(nil)
-                )
+        Group {
+            ZStack {
+                BackgroundView()
+                VStack {
+                    AlertView(
+                        viewModel: UserView.AlertViewModel(
+                            statusText: "Text should be viewable",
+                            userCanCallTrump: false, hideView: false),
+                        playerAction: .constant(nil)
+                    )
+                }
             }
+            .previewFor28sWith(.iPhone8)
+            
+            ZStack {
+                BackgroundView()
+                VStack {
+                    AlertView(
+                        viewModel: UserView.AlertViewModel(
+                            statusText: "Text should be viewable",
+                            userCanCallTrump: false, hideView: false),
+                        playerAction: .constant(nil)
+                    )
+                }
+            }
+            .previewFor28sWith(.iPadPro_12_9)
         }
-        .font(.copperPlate)
     }
 }

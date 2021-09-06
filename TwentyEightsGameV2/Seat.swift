@@ -11,6 +11,17 @@ import SwiftUI
 enum Seat: Int, CaseIterable {
     case north = 0, east, south, west
     
+    
+    /// Enum of the types of seats sets used in the game
+    enum SetType {
+        /// All Seats
+        case all
+        /// Seats that have yet to play in the current trick
+        case yetToPlay
+        /// Seats that follow after the current player in the trick
+        case following
+    }
+    
     /// previous Seats
     var previousSeat: Seat {
         switch self {
@@ -32,8 +43,8 @@ enum Seat: Int, CaseIterable {
     }
     
     /// The team (type: parterGroup) that a seat belongs to
-    var partnerGroup: PartnerGroup {
-        return (self == .south || self == .north) ? PartnerGroup.player: PartnerGroup.opponent
+    var team: Team {
+        return (self == .south || self == .north) ? Team.player: Team.opponent
     }
     
     /// Case Label for seat position

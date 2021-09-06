@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct TrumpPlaceHolderView: View {
-    var cardSize: CGSize
+    @Environment(\.cardValues) var cardValues
     
     var body: some View {
         ZStack{
-            CardPlaceHolderView(cardSize: cardSize)
+            CardPlaceHolderView()
             Text("TRUMP")
                 .tracking(trackingScale) // just widening the font a tad
                 .baselineOffset(offsetScale) // the engraved font default placement is top aligned
@@ -20,20 +20,29 @@ struct TrumpPlaceHolderView: View {
                 .rotationEffect(.degrees(textRotation))
                 .foregroundColor(.lemon)
         }
-        .frame(width: cardSize.width, height: cardSize.height)
+        .frame(width: cardValues.size.width, height: cardValues.size.height)
     }
     
-    private var textScale: CGFloat { 0.2 * cardSize.width }
-    private var trackingScale: CGFloat { 0.04 * cardSize.width }
-    private var offsetScale: CGFloat { -0.08 * cardSize.width }
+    private var textScale: CGFloat { 0.2 * cardValues.size.width }
+    private var trackingScale: CGFloat { 0.04 * cardValues.size.width }
+    private var offsetScale: CGFloat { -0.08 * cardValues.size.width }
     private let textRotation: Double = -60
 }
 
 struct TrumpPlaceHolderView_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack {
-            BackgroundView()
-            TrumpPlaceHolderView(cardSize: _28s.cardSize_screenHeight_667)
+        Group {
+            ZStack {
+                BackgroundView()
+                TrumpPlaceHolderView()
+            }
+            .previewFor28sWith(.iPhone8)
+            
+            ZStack {
+                BackgroundView()
+                TrumpPlaceHolderView()
+            }
+            .previewFor28sWith(.iPadPro_12_9)
         }
     }
 }

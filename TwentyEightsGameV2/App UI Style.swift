@@ -9,7 +9,20 @@ import SwiftUI
 
 // Adding default for the project
 extension Font {
-    static let copperPlate = Font.custom("Copperplate", size: 16).weight(.light)
+    static let copperPlate = Font.custom("Copperplate", fixedSize: 20).weight(.light)
+}
+
+enum ProjectFont: String {
+    case copperPlate
+    case academy = "Academy Engraved LET"
+}
+
+extension View {
+    func font(_ font: ProjectFont, size: CGFloat) -> some View {
+        self.font(.custom(font.rawValue, size: size)
+                    .weight(font == .copperPlate ? .light : .regular)
+        )
+    }
 }
 
 
@@ -22,6 +35,7 @@ extension Color {
     static let mercury = Color(#colorLiteral(red: 0.921431005, green: 0.9214526415, blue: 0.9214410186, alpha: 1))
     static let iron = Color(#colorLiteral(red: 0.370555222, green: 0.3705646992, blue: 0.3705595732, alpha: 1))
     static let lemon = Color(#colorLiteral(red: 0.7848167109, green: 0.746216685, blue: 0.0008920759827, alpha: 1))
+    static let darkGreen = Color(#colorLiteral(red: 0.1294117719, green: 0.2156862766, blue: 0.06666667014, alpha: 1))
 }
 
 // UIKit colors used in BidPicker UIPicker View

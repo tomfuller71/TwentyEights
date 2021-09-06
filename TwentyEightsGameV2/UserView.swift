@@ -31,6 +31,13 @@ class UserView: ObservableObject {
     @Published private(set) var gameStage: GameStage {
         willSet {
             gameActionResponse()
+            
+            // Needed to remove trump placeholder on start playing
+            if newValue == .playingRound(.playing) {
+                withAnimation {
+                    userCards = updateUserCardsModel()
+                }
+            }
         }
     }
     
@@ -45,7 +52,7 @@ class UserView: ObservableObject {
     @Published private(set) var roundStageAdvanced: Bool {
         willSet {
             if newValue == true {
-                gameActionResponse()
+                stageChangeResponse()
             }
         }
     }
@@ -103,7 +110,7 @@ extension UserView {
     var userHasTrump: Bool { game.seatHasUnrevealedTrump(userSeat) }
     
     /// True if the users team  has won the game
-    var userTeamWon: Bool { game.gameWinningTeam == userSeat.partnerGroup }
+    var userTeamWon: Bool { game.gameWinningTeam == userSeat.team }
     
     /// The  card that was selected by the top bid as the hidden trump in a round
     var roundTrump: Card? { game.round.trump.card }
@@ -158,16 +165,25 @@ extension UserView {
     /// Respond to game controller action
     private func gameActionResponse() {
         withAnimation {
-            //seats = updateSeatsViewModel()
             updateSeatActionView()
             updateScores()
             alerts = updateAlert()
         }
     }
     
+    
+    private func stageChangeResponse() {
+        withAnimation {
+            updateSeatActionView()
+            updateScores()
+            alerts = updateAlert()
+            userCards = updateUserCardsModel()
+            //picker = updateBidPicker()
+        }
+    }
+    
     /// Updates the view model based on response to active seat changing
     private func respondToActiveSeatChange(_ old: Seat) {
-        print("\(old.name) to \(activeSeat.name)")
         
         withAnimation {
             alerts = updateAlert()
@@ -176,7 +192,6 @@ extension UserView {
         // Updates seat view unless moving to user playing at the end of a trick
         if !(trickComplete && game.round.next == userSeat) {
             withAnimation {
-                //seats = updateSeatsViewModel()
                 updateSeatActionView()
             }
         }
@@ -185,6 +200,10 @@ extension UserView {
             userCards = updateUserCardsModel()
             
             if isBidding {
+                if game.round.trump.bidder != nil {
+                    updateScores()
+                }
+                
                 picker = updateBidPicker()
             }
         }
@@ -243,10 +262,11 @@ extension UserView {
 extension UserView {
     struct ScoresViewModel {
         /// Dictionary that stores  the current TeamScoreView properties for each team
-        var teams: [PartnerGroup : TeamScore] = PartnerGroup.allCases
+        var teams: [Team : TeamScore] = Team.allCases
             .reduce(into: [:]) {
                 $0[$1] = TeamScore()
             }
+        
         /// Stores  the current properties of the FinalBidView
         var bid = BidStatus()
         
@@ -282,10 +302,10 @@ extension UserView {
         }
         
         var bidIndicator: ScoresViewModel.Direction? {
-            if game.round.trump.bidder?.partnerGroup == .player && userIsLastBidder {
+            if game.round.trump.bidder?.team == .player {
                 return .left
             }
-            else if game.round.trump.bidder?.partnerGroup == .opponent {
+            else if game.round.trump.bidder?.team == .opponent {
                 return .right
             }
             else {
@@ -388,7 +408,6 @@ extension UserView {
         var minBid: Int = Bidding.BiddingStage.first.minimumBid
         var canBid: Bool = false
         var canPass: Bool = false
-        var hideView: Bool = true
         var trump: Card?
     }
     
@@ -413,7 +432,6 @@ extension UserView {
             minBid: minBid,
             canBid: userHasTrump,
             canPass: canPass,
-            hideView: !isBidding,
             trump: userHasTrump ? game.round.trump.card! : nil
         )
     }

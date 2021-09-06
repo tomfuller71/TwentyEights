@@ -12,16 +12,26 @@ struct Round {
     //MARK: Round properties
     let starting: Seat
     var hands: RoundCards = RoundCards()
-    var stage: RoundStage = .starting { willSet { dealCardsOnStageUpdate(newValue) } }
+    
+    var stage: RoundStage = .starting {
+        willSet { dealCardsOnStageUpdate(newValue) }
+    }
+    
     var actions: [PlayerAction] = []
     var bidding: Bidding = Bidding()
     var trump = Trump()
     var currentTrick: Trick
     var trickCount: Int = 0
-    var seatsKnownEmptyForSuit: [Suit : Set<Seat>] = Suit.allCases.reduce(into: [Suit : Set<Seat>]()) { $0[$1] = Set<Seat>() }
+    
+    var seatsKnownEmptyForSuit: [Suit : Set<Seat>] = Suit.allCases
+        .reduce(into: [Suit : Set<Seat>]()) { $0[$1] = Set<Seat>() }
+    
     var suitsKnownCantBeTrump: Set<Suit> = []
-    var roundScore: [PartnerGroup : Int] = PartnerGroup.allCases.reduce(into: [:]) { $0[$1] = 0 }
-    var winningTeam: PartnerGroup?
+    
+    var roundScore: [Team : Int] = Team.allCases
+        .reduce(into: [:]) { $0[$1] = 0 }
+    
+    var winningTeam: Team?
     var next: Seat?
     
     init(starting: Seat) {
@@ -112,6 +122,7 @@ extension Round {
     mutating func startTrick() {
         assert(currentTrick.isComplete, "Current trick not complete")
         trickCount += 1
+        print("Trick # \(trickCount)")
         let starting = currentTrick.seatToPlay
         currentTrick = Trick(starting: starting)
         next = starting
@@ -176,12 +187,12 @@ extension Round {
     /// Update trick scores
    mutating func updateRoundScore() {
         assert(currentTrick.isComplete, "Error - Trick not complete")
-        roundScore[currentTrick.winningSeat!.partnerGroup]! += currentTrick.pointsInTrick
+        roundScore[currentTrick.winningSeat!.team]! += currentTrick.pointsInTrick
     }
     
     /// Check to see if there is a winner for the round
     mutating func checkForRoundWinner() -> Bool {
-        let bidder = bidding.winningBid!.bidder.partnerGroup
+        let bidder = bidding.winningBid!.bidder.team
         let bidderWon: Bool  = roundScore[bidder]! >= bidding.winningBid!.points
         let opposingWon: Bool = roundScore[bidder.opposingTeam]! > (_28s.pointsInDeck - bidding.winningBid!.points)
         
@@ -198,10 +209,14 @@ extension Round {
     
     //MARK: - Get model state methods
     /// All tricks have been played in current round
-    var allTricksPlayed: Bool { trickCount == 7 }
+    var lastTrickOfRound: Bool { trickCount == 7 }
     
     /// Return hand of eligible cards and bool of whether seat can call the trump if they wish and updates known empty seats if the hand is unable to play a limiting suit
     func getEligibleCards(for seat: Seat, seatJustCalled: Bool) -> [Card] {
+        if seatJustCalled {
+            print("Should filter for trumps only")
+        }
+        
         var eligible = hands[seat]
         guard !(stage == .bidding(.first) || stage == .bidding(.second)) else { return eligible }
         
@@ -233,17 +248,38 @@ extension Round {
     /// Returns whether a seat can call trump
     func canSeatCallTrump(_ seat: Seat) -> Bool {
         guard (!trump.isCalled) else { return false }
-        let hand = hands[seat]
-        let isEmptyOflLeadSuit = !currentTrick.isEmpty && hand.filter {
-            $0.suit == currentTrick.leadSuit }.isEmpty
         
-        // Can only call if empty of lead suit or if you're the bidder and its the last round
-        if isEmptyOflLeadSuit || (seat == trump.bidder && trickCount == 7) {
+        let hand = hands[seat]
+        
+        let isEmptyOflLeadSuit = !currentTrick.isEmpty && hand.filter {
+            $0.suit == currentTrick.leadSuit }
+            .isEmpty
+        
+        // Can only call if empty of lead suit or if you're the bidder and its the last trick of round
+        if isEmptyOflLeadSuit || (seat == trump.bidder && lastTrickOfRound) {
             return true
         }
         else {
             return false
         }
+    }
+    
+
+    
+    func getSetofSeats(type: Seat.SetType) -> Set<Seat> {
+        switch type {
+        case .all:
+            return Set(Seat.allCases)
+        case .yetToPlay:
+            return currentTrick.seatsYetToPlay
+        case .following:
+            return currentTrick.followingSeats
+        }
+    }
+    
+    /// Returns  `Set\<Seat>` that are not known to be empty of a given Suit<Suit>  optionally selecting from `SeatType`
+    func seatsNotEmptyOf(_ suit: Suit, from setType: Seat.SetType = .all) -> Set<Seat> {
+        getSetofSeats(type: setType).subtracting(seatsKnownEmptyForSuit[suit]!)
     }
     
     /// Returns true if the card is played as a trump
@@ -254,6 +290,18 @@ extension Round {
     /// Returns true if this seat knows the trump suit
     func trumpIsKnowntoPlayer(_ seat: Seat) -> Bool {
         trump.isCalled || trump.bidder == seat
+    }
+    
+    /// Return the points won or lost for the current round
+    func getGamePoints() -> Int {
+        guard let winner = winningTeam else { return 0 }
+        var points = _28s.gamePointsForBidOf(bidding.winningBid!.points)
+        
+        // Add one if the bidding team lost
+        if trump.bidder!.team != winner {
+            points += 1
+        }
+        return points
     }
 }
 

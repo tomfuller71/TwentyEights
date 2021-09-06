@@ -13,48 +13,63 @@ struct PlayingTableView: View {
     @State var calledTrumpSeat: Seat?
     
     var body: some View {
-        ZStack {
-            BackgroundView()
+        GeometryReader { proxy in
+            let cardValues = getCardValues(proxy: proxy)
             
-            GeometryReader { proxy in
-                /// Standard dimensions for a playing card (will change  based on device type)
-                let cardSize: CGSize = getCardSizeForScreen(proxy: proxy)
+            ZStack {
+                BackgroundView()
                 
                 VStack(spacing: 0) {
                     ScoresView(scores: user.scores)
                     
-                    SeatView(seats: user.seats, cardSize: cardSize)
+                    Spacer()
                     
-                    BidPickerView(picker: user.picker, playerAction: $user.playerAction)
-                    .opacity(user.userIsActive && user.isBidding ? 1 : 0)
+                    SeatView(seats: user.seats)
+                        .offset(y: -10)
+                    
+                    Spacer()
+                    
+                    BidPickerView(
+                        picker: user.picker,
+                        defaultFontSize: cardValues.fontSize,
+                        hideView: !user.userIsActive || !user.isBidding ,
+                        playerAction: $user.playerAction
+                    )
+                    
+                    Spacer()
                     
                     AlertView(viewModel: user.alerts, playerAction: $user.playerAction)
-                    .padding([.bottom], 5)
+                    
+                    Spacer()
                     
                     UserCardsView(
                         userCards: user.userCards,
-                        cardSize: cardSize,
                         playerAction: $user.playerAction
                     )
-                    .padding([.leading, .trailing], 5)
                 }
                 .padding([.bottom],7)
+                // Limit width (8 cards + trump + spacers)
+                .frame(maxWidth: getMaxHandWidth(cardSize: cardValues.size))
+                
+                //MARK: - Condtional Views
+                VStack(alignment: .center) {
+                    if showStageChange {
+                        stageChangeView
+                    }
+                    
+                    if calledTrumpSeat != nil {
+                        TrumpCalled(
+                            trump: user.roundTrump!,
+                            caller: $calledTrumpSeat
+                        )
+                        .transition(.opacity)
+                    }
+                }
             }
-            //MARK: - Condtional Views
-            if showStageChange {
-                stageChangeView
-            }
-            
-            if calledTrumpSeat != nil {
-                TrumpCalled(
-                    trump: user.roundTrump!,
-                    caller: $calledTrumpSeat
-                )
-                .transition(.opacity)
-            }
+            // Add std values for the card CGSize and font CGFloat size into environment
+            .environment(\.cardValues, cardValues)
+            .environment(\.font, defaultFontOf(fontSize: cardValues.fontSize))
         }
-        //MARK: - Environment settings
-        .environment(\.font, .copperPlate)
         
         //MARK: - onChange
         .onChange(of: user.gameStage) { _ in
@@ -79,10 +94,9 @@ struct PlayingTableView: View {
                 }
             }
         }
+        .preferredColorScheme(.light)
     }
 }
-
-
 
 extension PlayingTableView {
     
@@ -92,8 +106,9 @@ extension PlayingTableView {
             switch user.gameStage {
             case .playingRound(.ending):
                 EndRoundView(
-                    userTeamWon: user.game.round.winningTeam == user.userSeat.partnerGroup,
-                    gamePoints: _28s.gamePointsForBidOf(user.scores.bid.bidPoints),
+                    userTeamWon: user.game.round.winningTeam == user.userSeat.team,
+                    updatedTeamScore: user.game.scores[.player]!,
+                    gamePoints: user.game.round.getGamePoints(),
                     action: $user.playerAction,
                     showView: $showStageChange)
                     .transition(.opacity)
@@ -109,11 +124,30 @@ extension PlayingTableView {
         }
     }
     
-    /// Returns the standard card size for a full screen proxy
-    func getCardSizeForScreen(proxy: GeometryProxy) -> CGSize {
-        let cardHeight: CGFloat = proxy.size.height * 0.20
+    /// Returns tuple standard dimensions for a playing card  and std font size (will change  based on device type)
+    private func getCardValues(proxy: GeometryProxy) -> CardValuesEnvironmentKey.Value {
+        let cardHeight: CGFloat = proxy.size.height * _28s.cardToViewHeightRatio
         let cardWidth: CGFloat = cardHeight * _28s.standardCardWidthRatio
-        return CGSize(width: cardWidth, height: cardHeight)
+        
+        return (
+            size: CGSize(width: cardWidth, height: cardHeight),
+            fontSize: cardHeight * _28s.fontCardHeightScale
+        )
+    }
+    
+    /// Returns the maxWidth frame limit (constrains width on Ipads)
+    private func getMaxHandWidth(cardSize: CGSize) -> CGFloat {
+        // card width * (inital + spacers) + trump Placeholder
+        ( cardSize.width + _28s.uiSpacerBetweenCards)
+            * ( CGFloat(_28s.initalHandSize)  )
+            + cardSize.width
+    }
+    
+    /// The defaullt fixed scale font for the app
+    private func defaultFontOf(fontSize: CGFloat ) -> Font {
+        Font
+            .custom("Copperplate", fixedSize: fontSize)
+            .weight(.light)
     }
 }
 
@@ -126,6 +160,10 @@ struct PlayingTableView_Previews: PreviewProvider {
             return user
         }()
         
-        PlayingTableView().environmentObject(user)
+        Group {
+            PlayingTableView()
+                .previewWith(.iPhone8)
+                .environmentObject(user)
+        }
     }
 }

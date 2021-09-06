@@ -22,6 +22,8 @@ enum _28s {
     /// The initial handSize of a hand
     static let initalHandSize = 8
     
+    /// The CGFloat horizonal space between card view when not overlapping
+    static let uiSpacerBetweenCards: CGFloat = 10
     
     /// Card UI constants
     static let card = CardConstants()
@@ -34,9 +36,13 @@ enum _28s {
     
     static let standardCard = CGSize(width: 2.25, height: 3.5)
     static let standardCardWidthRatio = CGFloat(standardCard.width / standardCard.height)
+    static let cardToViewHeightRatio: CGFloat = 0.2
     
     /// User only in previews
     static let cardSize_screenHeight_667 = CGSize(width: 667 * 0.2 * standardCardWidthRatio, height: 667 * 0.2)
+    
+    // Scalar for font size based on card height
+    static let fontCardHeightScale: CGFloat = 0.125
     
     /// The points team will gain if they win their bid, or if they lose they lose this + 1
     static func gamePointsForBidOf(_ bid: Int) -> Int {
@@ -67,5 +73,9 @@ enum _28s {
     
     /// The minimum number of points above the minBid needed for CPU player to bid
     static let minBidBufffer: Int = 1
+    
+    /// Win chance threashold that needs to be exceeded when cutting with a trump when not last in trick to be valid to play
+    // Completely abitary guestimate - no backing for this
+    static let minWinChanceWhenTrumping: Double = 0.75
 }
 

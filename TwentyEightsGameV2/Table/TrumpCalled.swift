@@ -10,19 +10,23 @@ import SwiftUI
 struct TrumpCalled: View {
     var trump: Card
     @Binding var caller: Seat?
+    @Environment(\.cardValues) var cardValues
 
     
     var body: some View {
         VStack {
-            if let caller = caller {
-                Text("\(caller.name) asked")
+            VStack{
+                if let caller = caller {
+                    Text("\(caller.name) asked")
+                    Text("for Trump")
+                }
             }
-            Text("for trump")
-                .foregroundColor(.black)
+            .foregroundColor(.black)
             
-            CardView(card: trump)
-                .frame(height: 100)
+            CardView(card: trump).scaleEffect(0.8)
         }
+        .padding()
+        .frame(minWidth: cardValues.size.width * 1.75)
         .onTapGesture {
             caller = nil
         }
@@ -34,7 +38,7 @@ struct TrumpCalled: View {
         
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 25.0)
+            RoundedRectangle(cornerRadius: cardValues.size.width * 0.33)
                 .fill(Color.offWhite)
                 .shadow(color: .black, radius: 5, x: 3, y: 5)
         )
@@ -43,11 +47,20 @@ struct TrumpCalled: View {
 
 struct TrumpCalled_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack {
-            BackgroundView()
+        Group {
+            ZStack {
+                BackgroundView()
+                
+                TrumpCalled(trump: Card(face: .ace, suit: .heart), caller: .constant(.south))
+            }
+            .previewFor28sWith(.iPhone12)
             
-            TrumpCalled(trump: Card(face: .ace, suit: .heart), caller: .constant(.south))
+            ZStack {
+                BackgroundView()
+                
+                TrumpCalled(trump: Card(face: .ace, suit: .heart), caller: .constant(.south))
+            }
+            .previewFor28sWith(.iPadPro_12_9)
         }
-        .font(.copperPlate)
     }
 }

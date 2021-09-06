@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct SeatPlaceHoldersView: View {
-    let cardSize: CGSize
+    @Environment(\.cardValues) var cardValues
     
     var body: some View {
         GeometryReader { proxy in
             ForEach(Seat.allCases, id: \.self) { seat in
-                CardPlaceHolderView(cardSize: cardSize)
-                    .frame(width: cardSize.width, height: cardSize.height)
+                CardPlaceHolderView()
+                    .frame(width: cardValues.size.width, height: cardValues.size.height)
                     .position(
-                        x: proxy.center.x + (seat.offsetPoint.x * cardSize.width),
-                        y: proxy.center.y + (seat.offsetPoint.y * cardSize.height)
+                        x: proxy.center.x + (seat.offsetPoint.x * cardValues.size.width),
+                        y: proxy.center.y + (seat.offsetPoint.y * cardValues.size.height)
                 )
             }
         }
@@ -28,7 +28,9 @@ struct SeatPlaceHoldersView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             BackgroundView()
-            SeatPlaceHoldersView(cardSize: _28s.cardSize_screenHeight_667)
+            SeatPlaceHoldersView()
+                
         }
+        .previewFor28sWith(.iPhone8)
     }
 }

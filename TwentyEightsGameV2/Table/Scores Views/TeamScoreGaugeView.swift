@@ -9,25 +9,41 @@ import SwiftUI
 
 struct TeamScoreGaugeView: View {
     //Init with Joker points for team
-    var points: CGFloat
-    var fillColor: Color {
-        switch self.points {
-        case 0 ... 2:   return Color.cayenne
-        case 3 ..< 6:   return Color.lemon
-        default:        return Color.moss
-        }
-    }
+    var points: Int
+    var roundEnded: Bool
+    @Environment(\.cardValues) var cardValues
     
     var body: some View {
-        ZStack {
-            Capsule()
-                .strokeBorder(Color.offWhite, lineWidth: 1.5)
-            Capsule()
-                .fill(fillColor)
-                .scaleEffect(x: (points / 12) * 0.87, y: 0.5, anchor: .leading)
-                .offset(x: 4)
+        HStack(spacing: 0) {
+            ForEach(0..<6) { i in
+                Image(systemName: "circle.fill")
+                    .foregroundColor(getColor(index: i))
+                    .font(.custom("system", size: cardValues.fontSize * 0.63))
+                    //.frame(maxWidth: 20)
+            }
         }
-        .frame(width: 60, height: 15, alignment: .center)
+        .padding([.top,.bottom], 4)
+        .background(
+            Capsule()
+                .strokeBorder(
+                    roundEnded ? Color.black : Color.offWhite, lineWidth: 1.5
+                )
+                .padding([.leading,.trailing], -3)
+        )
+        //.padding()
+        //.frame(maxWidth: 100)
+    }
+    
+    private func getColor(index: Int) -> Color {
+        var color = Color.clear
+        
+        if points > 0  && index < points{
+            color = .cayenne
+        }
+        else if points < 0 && index < points * -1 {
+                color = .black
+        }
+        return color
     }
 }
 
@@ -35,7 +51,8 @@ struct TeamScoreGaugeView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             BackgroundView()
-            TeamScoreGaugeView(points: 4)
+            TeamScoreGaugeView(points: -6, roundEnded: false)
         }
+        .previewFor28sWith(.iPhone11_Pro)
     }
 }

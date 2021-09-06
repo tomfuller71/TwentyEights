@@ -39,7 +39,7 @@ struct StageChangeView_Previews: PreviewProvider {
         ZStack {
             BackgroundView()
             StageChangeView(stage: .starting, showView: .constant(true))
-                .font(.copperPlate)
         }
+        .previewFor28sWith(.iPhone8)
     }
 }

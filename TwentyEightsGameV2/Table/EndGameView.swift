@@ -10,6 +10,7 @@ import SwiftUI
 struct EndGameView: View {
     let userTeamWins: Bool
     @Binding var action: PlayerAction.ActionType?
+    @Environment(\.cardValues) var cardValues
     
     var body: some View {
         VStack {
@@ -21,30 +22,24 @@ struct EndGameView: View {
                 .resizable()
                 .scaledToFit()
                 .rotationEffect(.degrees(95))
-                .frame(width: 100)
+                .frame(width: cardValues.size.width)
             
             
             Text("Tap to start new game")
                 .padding([.top],5)
                 .foregroundColor(.blue)
         }
-        .frame(minWidth: 290)
+        .frame(minWidth: cardValues.size.width * 3)
         .padding()
         .foregroundColor(Color.lead)
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: cardValues.size.width * 0.33)
                 .fill(Color.offWhite)
                 .shadow(color: .black, radius: 5, x: 3, y: 5)
         )
         .onTapGesture {
             action = .startNewGame
         }
-       /* .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay * 2 ) {
-                action = .startNewGame
-            }
-        }
-        */
     }
 }
 
@@ -53,10 +48,18 @@ struct EndGameView: View {
 
 struct EndGameView_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack {
-            BackgroundView()
-            EndGameView(userTeamWins: true,action: .constant(nil))
-                .font(.copperPlate)
+        Group {
+            ZStack {
+                BackgroundView()
+                EndGameView(userTeamWins: true,action: .constant(nil))
+            }
+            .previewFor28sWith(.iPhone8)
+            
+            ZStack {
+                BackgroundView()
+                EndGameView(userTeamWins: true,action: .constant(nil))
+            }
+            .previewFor28sWith(.iPadPro_12_9)
         }
     }
 }

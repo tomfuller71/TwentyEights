@@ -10,13 +10,18 @@ import SwiftUI
 /// View providing UI response to user bidding
 struct BidPickerView: View {
     var picker: UserView.BidPickerModel
+    var defaultFontSize: CGFloat
+    var hideView: Bool
     @Binding var userBidIntent: PlayerAction.ActionType?
     @State var currentBid: Int = 0
     
-    init(picker: UserView.BidPickerModel, playerAction: Binding<PlayerAction.ActionType?>) {
+    
+    init(picker: UserView.BidPickerModel, defaultFontSize: CGFloat, hideView: Bool, playerAction: Binding<PlayerAction.ActionType?>) {
         self.picker = picker
+        self.defaultFontSize = defaultFontSize
+        self.hideView = hideView
         self._userBidIntent = playerAction
-        BidPickerView.configPickerWithUIKit()
+        BidPickerView.configPickerWithUIKit(fontSize: defaultFontSize * 1.2)
     }
     
     var body: some View {
@@ -39,10 +44,12 @@ struct BidPickerView: View {
                 )
                 .disabled(!picker.canPass)
             }
-            .font(Font.custom("Academy Engraved LET", size: 22))
         }
+        .opacity(hideView ? 0 : 1)
+        .disabled(hideView)
+        .font(Font.custom("Academy Engraved LET", fixedSize: defaultFontSize * 1.3))
     }
-    
+
     /// The UI picker element
     private var pickerView: some View {
         VStack(spacing: 0) {
@@ -122,21 +129,25 @@ struct BidPickerView: View {
 struct BidPickerView_Previews: PreviewProvider {
     static var previews: some View {
         
+        let picker = UserView.BidPickerModel(
+            seat: .south,
+            pickerValues: Array<Int>(14...20),
+            canBid: true,
+            canPass: true
+        )
+        
         ZStack{
             BackgroundView()
             
             BidPickerView(
-                picker: UserView.BidPickerModel(
-                    seat: .south,
-                    pickerValues: Array<Int>(14...20),
-                    canBid: true,
-                    canPass: true,
-                    hideView: false
-                ),
+                picker: picker,
+                defaultFontSize: 129.5 * _28s.fontCardHeightScale,
+                hideView: false,
                 playerAction: .constant(nil)
             )
         }
         .edgesIgnoringSafeArea(.all)
+        .previewFor28sWith(.iPhone8)
     }
 }
 
@@ -144,8 +155,8 @@ struct BidPickerView_Previews: PreviewProvider {
 extension BidPickerView {
     
     /// Used  as SwiftUI doesn't have segmentControl so using UIKit settings on view .init
-    static func configPickerWithUIKit() {
-        let font = UIFont(name: "Academy Engraved LET", size: 22)!
+    static func configPickerWithUIKit(fontSize: CGFloat) {
+        let font = UIFont(name: "Academy Engraved LET", size: fontSize)!
         
         UISegmentedControl
             .appearance()

@@ -11,20 +11,24 @@ import SwiftUI
 struct FinalBidView: View {
     var bid: UserView.ScoresViewModel.BidStatus
     
+    @Environment(\.cardValues) var cardValues
+   // var fontSize: CGFloat { cardSize.height * _28s.fontCardHeightScale }
+    
     var body: some View {
-        VStack(spacing: nil) {
+        VStack(spacing: 3) {
             
             //Show who is the bidding team and the current bid
-            HStack(spacing: 17) {
+            HStack {
                 Image(systemName: "chevron.backward.square.fill")
-                    .imageScale(.large)
+                    .font(.custom("system", fixedSize: cardValues.fontSize))
                     .opacity(bid.bidIndicator == .left ? 1 : 0)
                 
                 Text("Bid \(bid.bidPoints)")
+                    .allowsTightening(true)
                     .opacity(bid.bidPoints > 0 ? 1 : 0)
                 
                 Image(systemName: "chevron.forward.square.fill")
-                    .imageScale(.large)
+                    .font(.custom("system", fixedSize: cardValues.fontSize))
                     .opacity((bid.bidIndicator == .right) ? 1 : 0)
             }
             
@@ -33,14 +37,16 @@ struct FinalBidView: View {
                 if let suit = bid.trumpSuit, bid.trumpCalled {
                     Text("Trump:")
                     Text(suit.rawValue)
-                        .font(.title2)
+                        .font(.custom("system", fixedSize: cardValues.fontSize))
                         .foregroundColor(suit.suitColor)
                 }
                 else {
-                    Text("Placeholder").font(.title2).opacity(0)
+                    Text("Placeholder")
+                        .opacity(0)
                 }
             }
         }
+        .font(.copperPlate, size: cardValues.fontSize)
     }
 }
 
@@ -78,9 +84,8 @@ struct FinalBidView_Previews: PreviewProvider {
                     FinalBidView(bid: bid)
                 }
             }
-            
-            .font(.copperPlate)
             .foregroundColor(.offWhite)
+            .previewFor28sWith(.iPhone8)
         }
     }
 }

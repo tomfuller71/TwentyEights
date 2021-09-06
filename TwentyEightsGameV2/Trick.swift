@@ -21,6 +21,7 @@ struct Trick {
 //MARK:- Trick update method and computed properties
 extension Trick {
     var isEmpty: Bool { seatActions.isEmpty }
+    var playerIsLastToPlay: Bool { seatActions.count == 3 }
     var isComplete: Bool { seatActions.count == 4 }
     
     /// The seat that is due to play a card next in the round
@@ -42,8 +43,8 @@ extension Trick {
     }
     
     /// Returns set of seat following that are members of the given team
-    func followingSeatsOfTeam(_ group: PartnerGroup) -> Set<Seat> {
-        return followingSeats.filter { $0.partnerGroup == group }
+    func followingSeatsOfTeam(_ group: Team) -> Set<Seat> {
+        return followingSeats.filter { $0.team == group }
     }
     
     /// Updates the current trick with the player action with knowledge of whether the card played is trump

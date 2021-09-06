@@ -14,12 +14,12 @@ class GameController {
     var players: [Seat : Player]
     var starting: Seat
     
-    var scores: [PartnerGroup : Int] = [
+    var scores: [Team : Int] = [
         .player : _28s.gameTeamStartingPoints,
         .opponent :  _28s.gameTeamStartingPoints
     ]
     
-    var gameWinningTeam: PartnerGroup?
+    var gameWinningTeam: Team?
     var round: Round
     var roundCount: Int = 0
     var roundActions: [(Int, PlayerAction)] = []
@@ -84,7 +84,7 @@ extension GameController {
             newGame()
         }
         
-        print(action.text)
+        print("\(action.text) \n")
     }
     
     /// Take a game action
@@ -176,7 +176,7 @@ extension GameController {
         trickComplete = true
         DispatchQueue.main.asyncAfter(deadline: .now() + _28s.uiDelay) {
             self.trickComplete = false
-            if !self.round.allTricksPlayed {
+            if !self.round.lastTrickOfRound {
                 print("Game started new trick")
                 self.round.startTrick()
                 self.active = self.round.currentTrick.starting
@@ -186,17 +186,20 @@ extension GameController {
     
     /// Updates the game points for the teams at the end of a round
     private func updateGameScore() {
+        // Early return if no winner
         guard let winner = round.winningTeam else { return }
-        let points = _28s.gamePointsForBidOf(round.bidding.winningBid?.points ?? 0)
         
+        let points = round.getGamePoints()
+        
+        // Update team game score for the point won/lost in the round
         scores[winner]! += points
         scores[winner.opposingTeam]! -= points
         
         // Check for endGame
-        if scores[winner]! < 0 {
+        if scores[winner]! < -6 {
             gameWinningTeam = winner.opposingTeam
         }
-        else if scores[winner.opposingTeam]! < 0 {
+        else if scores[winner.opposingTeam]! < -6 {
             gameWinningTeam = winner
         }
         
@@ -205,7 +208,6 @@ extension GameController {
         }
     }
     
-    // TODO:- consolidate start round and newRound into one function
     /// Called to start a new round of the game
     private func newRound() {
         gameStage = .playingRound(.starting)
@@ -219,7 +221,6 @@ extension GameController {
         round.startRound()
         active = starting
     }
-
     
     /// Called to start a new game
     private func newGame() {

@@ -17,12 +17,10 @@
 		C478FE5125E9B0240050B0E5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C478FE5025E9B0240050B0E5 /* Assets.xcassets */; };
 		C478FE5425E9B0240050B0E5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C478FE5325E9B0240050B0E5 /* Preview Assets.xcassets */; };
 		C478FECF25E9B0C70050B0E5 /* Face.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FEC925E9B0C60050B0E5 /* Face.swift */; };
-		C478FED025E9B0C70050B0E5 /* PartnerGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FECA25E9B0C70050B0E5 /* PartnerGroup.swift */; };
 		C478FED125E9B0C70050B0E5 /* PlayerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FECB25E9B0C70050B0E5 /* PlayerType.swift */; };
 		C478FED225E9B0C70050B0E5 /* Suit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FECC25E9B0C70050B0E5 /* Suit.swift */; };
 		C478FED325E9B0C70050B0E5 /* Seat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FECD25E9B0C70050B0E5 /* Seat.swift */; };
 		C478FED425E9B0C70050B0E5 /* GameStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FECE25E9B0C70050B0E5 /* GameStage.swift */; };
-		C478FEE225E9B1050050B0E5 /* Deck.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FEDC25E9B1050050B0E5 /* Deck.swift */; };
 		C478FEE325E9B1050050B0E5 /* PlayerAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FEDD25E9B1050050B0E5 /* PlayerAction.swift */; };
 		C478FEE525E9B1050050B0E5 /* CardFlashes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FEDF25E9B1050050B0E5 /* CardFlashes.swift */; };
 		C478FEE625E9B1050050B0E5 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = C478FEE025E9B1050050B0E5 /* Card.swift */; };
@@ -62,8 +60,17 @@
 		C4EC1C5125FFA7B100A2ADA7 /* SeatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EC1C3D25FFA7B100A2ADA7 /* SeatView.swift */; };
 		C4EC1C5225FFA7B100A2ADA7 /* EndRoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EC1C3E25FFA7B100A2ADA7 /* EndRoundView.swift */; };
 		C4EC1C5325FFA7B100A2ADA7 /* App UI Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EC1C4025FFA7B100A2ADA7 /* App UI Style.swift */; };
+		FA0234D426D830DA00080B6F /* OtherHandAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0234D326D830DA00080B6F /* OtherHandAnalysis.swift */; };
+		FA11C51926D45DD000CAB44B /* CardValuesEnvironmentKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11C51826D45DD000CAB44B /* CardValuesEnvironmentKey.swift */; };
+		FA11C51B26D469ED00CAB44B /* IOS_Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11C51A26D469ED00CAB44B /* IOS_Device.swift */; };
+		FA4DE61E26E6564F00442123 /* Team.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4DE61D26E6564F00442123 /* Team.swift */; };
+		FA6EE1E326E157DC003DAFEF /* Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6EE1E226E157DC003DAFEF /* Following.swift */; };
+		FA6EE1E526E1585A003DAFEF /* CardEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6EE1E426E1585A003DAFEF /* CardEvaluation.swift */; };
+		FA6EE1E926E2AA78003DAFEF /* ExpectedPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6EE1E826E2AA78003DAFEF /* ExpectedPoints.swift */; };
+		FA6EE1EB26E306DD003DAFEF /* ChancesAndPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6EE1EA26E306DD003DAFEF /* ChancesAndPoints.swift */; };
 		FAD64343269F1AD700FBC7F7 /* Fill.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD64342269F1AD700FBC7F7 /* Fill.swift */; };
-		FAD7E1D626C9970500D4C3B8 /* NestedStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD7E1D526C9970500D4C3B8 /* NestedStructs.swift */; };
+		FAD7E1D626C9970500D4C3B8 /* BestSuitAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD7E1D526C9970500D4C3B8 /* BestSuitAnalysis.swift */; };
+		FAD98B0426DFF8BA0078AC26 /* CPUPlayer - Unused methods.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD98B0326DFF8BA0078AC26 /* CPUPlayer - Unused methods.swift */; };
 		FAE069CD26C871170065D172 /* Game errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE069CC26C871170065D172 /* Game errors.swift */; };
 /* End PBXBuildFile section */
 
@@ -80,12 +87,10 @@
 		C478FE5325E9B0240050B0E5 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C478FE5525E9B0240050B0E5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C478FEC925E9B0C60050B0E5 /* Face.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Face.swift; sourceTree = "<group>"; };
-		C478FECA25E9B0C70050B0E5 /* PartnerGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PartnerGroup.swift; sourceTree = "<group>"; };
 		C478FECB25E9B0C70050B0E5 /* PlayerType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerType.swift; sourceTree = "<group>"; };
 		C478FECC25E9B0C70050B0E5 /* Suit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Suit.swift; sourceTree = "<group>"; };
 		C478FECD25E9B0C70050B0E5 /* Seat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Seat.swift; sourceTree = "<group>"; };
 		C478FECE25E9B0C70050B0E5 /* GameStage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameStage.swift; sourceTree = "<group>"; };
-		C478FEDC25E9B1050050B0E5 /* Deck.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Deck.swift; sourceTree = "<group>"; };
 		C478FEDD25E9B1050050B0E5 /* PlayerAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerAction.swift; sourceTree = "<group>"; };
 		C478FEDF25E9B1050050B0E5 /* CardFlashes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardFlashes.swift; sourceTree = "<group>"; };
 		C478FEE025E9B1050050B0E5 /* Card.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
@@ -125,8 +130,17 @@
 		C4EC1C3D25FFA7B100A2ADA7 /* SeatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeatView.swift; sourceTree = "<group>"; };
 		C4EC1C3E25FFA7B100A2ADA7 /* EndRoundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EndRoundView.swift; sourceTree = "<group>"; };
 		C4EC1C4025FFA7B100A2ADA7 /* App UI Style.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "App UI Style.swift"; sourceTree = "<group>"; };
+		FA0234D326D830DA00080B6F /* OtherHandAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherHandAnalysis.swift; sourceTree = "<group>"; };
+		FA11C51826D45DD000CAB44B /* CardValuesEnvironmentKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardValuesEnvironmentKey.swift; sourceTree = "<group>"; };
+		FA11C51A26D469ED00CAB44B /* IOS_Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOS_Device.swift; sourceTree = "<group>"; };
+		FA4DE61D26E6564F00442123 /* Team.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Team.swift; sourceTree = "<group>"; };
+		FA6EE1E226E157DC003DAFEF /* Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Following.swift; sourceTree = "<group>"; };
+		FA6EE1E426E1585A003DAFEF /* CardEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEvaluation.swift; sourceTree = "<group>"; };
+		FA6EE1E826E2AA78003DAFEF /* ExpectedPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpectedPoints.swift; sourceTree = "<group>"; };
+		FA6EE1EA26E306DD003DAFEF /* ChancesAndPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChancesAndPoints.swift; sourceTree = "<group>"; };
 		FAD64342269F1AD700FBC7F7 /* Fill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fill.swift; sourceTree = "<group>"; };
-		FAD7E1D526C9970500D4C3B8 /* NestedStructs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NestedStructs.swift; sourceTree = "<group>"; };
+		FAD7E1D526C9970500D4C3B8 /* BestSuitAnalysis.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BestSuitAnalysis.swift; sourceTree = "<group>"; };
+		FAD98B0326DFF8BA0078AC26 /* CPUPlayer - Unused methods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CPUPlayer - Unused methods.swift"; sourceTree = "<group>"; };
 		FAE069CC26C871170065D172 /* Game errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Game errors.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -183,7 +197,6 @@
 				C4BA0D73260BB55900A296CB /* Extensions */,
 				C40BBF7225F15C5600DD2AC6 /* ViewModels */,
 				C478FEF425E9B3BA0050B0E5 /* Models */,
-				C478FEE925E9B1960050B0E5 /* Enums */,
 				C478FEEA25E9B1C10050B0E5 /* Views */,
 				C489795825ED6CCD00BFA5F0 /* Utilites */,
 				C478FE5025E9B0240050B0E5 /* Assets.xcassets */,
@@ -206,9 +219,9 @@
 			children = (
 				C478FECC25E9B0C70050B0E5 /* Suit.swift */,
 				C478FECD25E9B0C70050B0E5 /* Seat.swift */,
+				FA4DE61D26E6564F00442123 /* Team.swift */,
 				C478FEC925E9B0C60050B0E5 /* Face.swift */,
 				C478FECE25E9B0C70050B0E5 /* GameStage.swift */,
-				C478FECA25E9B0C70050B0E5 /* PartnerGroup.swift */,
 				C478FECB25E9B0C70050B0E5 /* PlayerType.swift */,
 			);
 			name = Enums;
@@ -227,7 +240,6 @@
 		C478FEF425E9B3BA0050B0E5 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				FAD7E1D526C9970500D4C3B8 /* NestedStructs.swift */,
 				C478FF0625E9B5C80050B0E5 /* Game */,
 			);
 			name = Models;
@@ -237,9 +249,10 @@
 			isa = PBXGroup;
 			children = (
 				C478F15A25EECCA700E79A15 /* _28s constants.swift */,
-				C478FEF825E9B4450050B0E5 /* GameController.swift */,
-				C408CE8E25F9AC370093FA1F /* CPUPlayer.swift */,
 				C478FEE125E9B1050050B0E5 /* Player.swift */,
+				C478FEF825E9B4450050B0E5 /* GameController.swift */,
+				FA6EE1E726E15A95003DAFEF /* CPU Player */,
+				C478FEE925E9B1960050B0E5 /* Enums */,
 				C478FF0825E9B5F70050B0E5 /* Round */,
 			);
 			name = Game;
@@ -262,7 +275,7 @@
 		C489795825ED6CCD00BFA5F0 /* Utilites */ = {
 			isa = PBXGroup;
 			children = (
-				C478FEDC25E9B1050050B0E5 /* Deck.swift */,
+				FAD98B0326DFF8BA0078AC26 /* CPUPlayer - Unused methods.swift */,
 				C4075ECA26029B840014F4EB /* 28sPreViewData.swift */,
 			);
 			name = Utilites;
@@ -295,6 +308,8 @@
 			isa = PBXGroup;
 			children = (
 				C4BA0D76260BB5B400A296CB /* onPressingDragGesture.swift */,
+				FA11C51A26D469ED00CAB44B /* IOS_Device.swift */,
+				FA11C51826D45DD000CAB44B /* CardValuesEnvironmentKey.swift */,
 				FAE069CC26C871170065D172 /* Game errors.swift */,
 				FAD64342269F1AD700FBC7F7 /* Fill.swift */,
 				C483C89E2607A16800D9D1A1 /* FlipViewModifier.swift */,
@@ -341,6 +356,28 @@
 				C4AB76B526050E3200AB6015 /* TrumpPlaceHolderView.swift */,
 			);
 			path = Hand;
+			sourceTree = "<group>";
+		};
+		FA6EE1E626E15968003DAFEF /* CPU sub models */ = {
+			isa = PBXGroup;
+			children = (
+				FA0234D326D830DA00080B6F /* OtherHandAnalysis.swift */,
+				FA6EE1E226E157DC003DAFEF /* Following.swift */,
+				FAD7E1D526C9970500D4C3B8 /* BestSuitAnalysis.swift */,
+				FA6EE1E826E2AA78003DAFEF /* ExpectedPoints.swift */,
+				FA6EE1EA26E306DD003DAFEF /* ChancesAndPoints.swift */,
+				FA6EE1E426E1585A003DAFEF /* CardEvaluation.swift */,
+			);
+			name = "CPU sub models";
+			sourceTree = "<group>";
+		};
+		FA6EE1E726E15A95003DAFEF /* CPU Player */ = {
+			isa = PBXGroup;
+			children = (
+				C408CE8E25F9AC370093FA1F /* CPUPlayer.swift */,
+				FA6EE1E626E15968003DAFEF /* CPU sub models */,
+			);
+			name = "CPU Player";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -414,13 +451,14 @@
 			files = (
 				C4BA0D77260BB5B400A296CB /* onPressingDragGesture.swift in Sources */,
 				C4AB76A32604F8EA00AB6015 /* SeatSelectionsView.swift in Sources */,
+				FAD98B0426DFF8BA0078AC26 /* CPUPlayer - Unused methods.swift in Sources */,
 				C4AB769F2604F27200AB6015 /* GeometryProxy + center.swift in Sources */,
 				C478F15B25EECCA700E79A15 /* _28s constants.swift in Sources */,
 				C4BAF816260BE7FA006AAB23 /* UIImage + ClearBackground.swift in Sources */,
 				C4AB76A82604FFF700AB6015 /* CardPlaceHolderView.swift in Sources */,
 				C478FEF625E9B4160050B0E5 /* Bidding.swift in Sources */,
-				C478FEE225E9B1050050B0E5 /* Deck.swift in Sources */,
 				C4EC1C4F25FFA7B100A2ADA7 /* AlertView.swift in Sources */,
+				FA4DE61E26E6564F00442123 /* Team.swift in Sources */,
 				C4EC1C5225FFA7B100A2ADA7 /* EndRoundView.swift in Sources */,
 				C478FECF25E9B0C70050B0E5 /* Face.swift in Sources */,
 				C40BBF7C25F1994800DD2AC6 /* UserView.swift in Sources */,
@@ -430,10 +468,10 @@
 				C4EC1C4825FFA7B100A2ADA7 /* StageChangeView.swift in Sources */,
 				C4EC1C4525FFA7B100A2ADA7 /* CardBackView.swift in Sources */,
 				C4EC1C4625FFA7B100A2ADA7 /* HandView.swift in Sources */,
-				C478FED025E9B0C70050B0E5 /* PartnerGroup.swift in Sources */,
 				C408CE8F25F9AC370093FA1F /* CPUPlayer.swift in Sources */,
 				C478FEE525E9B1050050B0E5 /* CardFlashes.swift in Sources */,
 				C436D5EA25EE96A20081A280 /* Trump.swift in Sources */,
+				FA0234D426D830DA00080B6F /* OtherHandAnalysis.swift in Sources */,
 				C48C42462603E34B009E81D9 /* UserCardsView.swift in Sources */,
 				C478FED125E9B0C70050B0E5 /* PlayerType.swift in Sources */,
 				C478FEE325E9B1050050B0E5 /* PlayerAction.swift in Sources */,
@@ -442,10 +480,11 @@
 				C4EC1C5325FFA7B100A2ADA7 /* App UI Style.swift in Sources */,
 				C48C42672604D321009E81D9 /* TeamScoreGaugeView.swift in Sources */,
 				C483C89F2607A16800D9D1A1 /* FlipViewModifier.swift in Sources */,
+				FA11C51B26D469ED00CAB44B /* IOS_Device.swift in Sources */,
 				C4EC1C5025FFA7B100A2ADA7 /* PlayingTableView.swift in Sources */,
 				C478FEF925E9B4450050B0E5 /* GameController.swift in Sources */,
 				C478FED425E9B0C70050B0E5 /* GameStage.swift in Sources */,
-				FAD7E1D626C9970500D4C3B8 /* NestedStructs.swift in Sources */,
+				FAD7E1D626C9970500D4C3B8 /* BestSuitAnalysis.swift in Sources */,
 				C4075ECB26029B840014F4EB /* 28sPreViewData.swift in Sources */,
 				C4AB76B626050E3200AB6015 /* TrumpPlaceHolderView.swift in Sources */,
 				C478FE4D25E9B0230050B0E5 /* TwentyEightsGameV2App.swift in Sources */,
@@ -455,13 +494,18 @@
 				C48C425E2604D269009E81D9 /* TeamScoreView.swift in Sources */,
 				C4EC1C4925FFA7B100A2ADA7 /* TrumpCalled.swift in Sources */,
 				C4EC1C4C25FFA7B100A2ADA7 /* EndGameView.swift in Sources */,
+				FA11C51926D45DD000CAB44B /* CardValuesEnvironmentKey.swift in Sources */,
 				FAE069CD26C871170065D172 /* Game errors.swift in Sources */,
 				C478FF1825ED55230050B0E5 /* IntID.swift in Sources */,
+				FA6EE1E926E2AA78003DAFEF /* ExpectedPoints.swift in Sources */,
 				C478FED225E9B0C70050B0E5 /* Suit.swift in Sources */,
 				C4EC1C4A25FFA7B100A2ADA7 /* BidPickerView.swift in Sources */,
+				FA6EE1E526E1585A003DAFEF /* CardEvaluation.swift in Sources */,
+				FA6EE1EB26E306DD003DAFEF /* ChancesAndPoints.swift in Sources */,
 				C478FEE725E9B1050050B0E5 /* Player.swift in Sources */,
 				C4EC1C4725FFA7B100A2ADA7 /* TrumpView.swift in Sources */,
 				C478FF0225E9B4DC0050B0E5 /* Round.swift in Sources */,
+				FA6EE1E326E157DC003DAFEF /* Following.swift in Sources */,
 				C4EC1C5125FFA7B100A2ADA7 /* SeatView.swift in Sources */,
 				C4EC1C4D25FFA7B100A2ADA7 /* BackgroundView.swift in Sources */,
 				C478FEE625E9B1050050B0E5 /* Card.swift in Sources */,
