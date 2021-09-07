@@ -2,8 +2,7 @@
 //  EndRoundView.swift
 //  TwentyEights
 //
-//  Created by Tom Fuller on 11/18/20.
-//
+//  Created by Tom Fuller
 
 import SwiftUI
 

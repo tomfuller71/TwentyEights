@@ -1,8 +1,8 @@
 //
 //  Clear Background.swift
-//  TwentyEightsGameV2
+//  TwentyEights
 //
-//  Created by Thomas Fuller on 3/24/21.
+//  Created by Thomas Fuller
 //
 
 import SwiftUI

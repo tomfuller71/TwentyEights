@@ -2,7 +2,7 @@
 //  CardModel.swift
 //  TwentyEights
 //
-//  Created by Tom Fuller on 10/10/20.
+//  Created by Tom Fuller
 //
 
 import Foundation

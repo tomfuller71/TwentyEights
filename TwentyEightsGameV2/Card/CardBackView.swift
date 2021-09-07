@@ -2,7 +2,7 @@
 //  CardBackView.swift
 //  TwentyEights
 //
-//  Created by Tom Fuller on 11/24/20.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

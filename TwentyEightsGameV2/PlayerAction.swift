@@ -1,12 +1,11 @@
 //
 //  Bid.swift
-//  JokerGame
+//  TwentyEights
 //
-//  Created by Tom Fuller on 1/13/21.
+//  Created by Tom Fuller
 //
 
 import Foundation
-
 
 /// Action taken by a seat
 struct PlayerAction: Identifiable {

@@ -1,8 +1,8 @@
 //
 //  TeamScoreView.swift
-//  TwentyEightsGameV2
+//  TwentyEights
 //
-//  Created by Thomas Fuller on 3/19/21.
+//  Created by Thomas Fuller
 //
 
 import SwiftUI
@@ -40,7 +40,7 @@ struct TeamScoreView: View {
     }
     
 }
-// SE
+
 struct TeamScoreView_Previews: PreviewProvider {
     static var previews: some View {
         let score1 = UserView.ScoresViewModel.TeamScore(

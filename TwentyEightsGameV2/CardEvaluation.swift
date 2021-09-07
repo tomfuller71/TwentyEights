@@ -1,8 +1,8 @@
 //
 //  CardEvaluation.swift
-//  CardEvaluation
+//  TwentyEights
 //
-//  Created by Thomas Fuller on 9/2/21.
+//  Created by Thomas Fuller
 //
 
 import Foundation

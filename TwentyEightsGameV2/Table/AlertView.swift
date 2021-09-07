@@ -1,8 +1,8 @@
 //
-//  StatusView.swift
+//  AlertView.swift
 //  TwentyEights
 //
-//  Created by Tom Fuller on 12/8/20.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

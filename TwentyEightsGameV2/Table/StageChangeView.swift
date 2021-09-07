@@ -1,8 +1,8 @@
 //
 //  StageChangeView.swift
-//  JokerGame
+//  TwentyEights
 //
-//  Created by Tom Fuller on 1/12/21.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

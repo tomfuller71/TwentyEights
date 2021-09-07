@@ -1,8 +1,8 @@
 //
-//  TableView.swift
-//  TwentyEightsGameV2
+//  UserView.swift
+//  TwentyEights
 //
-//  Created by Thomas Fuller on 3/4/21.
+//  Created by Thomas Fuller
 //
 
 import SwiftUI

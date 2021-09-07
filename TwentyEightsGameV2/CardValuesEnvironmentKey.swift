@@ -1,8 +1,6 @@
 //
 //  ParentSizeEnvironmentKey.swift
-//  TwentyEightsGameV2
-//
-//  Created by Thomas Fuller on 8/23/21.
+//  Created by Thomas Fuller
 //
 
 import Foundation

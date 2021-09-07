@@ -1,8 +1,8 @@
 //
 //  TrumpCalled.swift
-//  JokerGame
+//  TwentyEights
 //
-//  Created by Tom Fuller on 12/30/20.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

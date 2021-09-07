@@ -1,8 +1,8 @@
 //
-//  StatusBannerView.swift
-//  JokerGame
+//  ScoresView.swift
+//  TwentyEights
 //
-//  Created by Tom Fuller on 1/8/21.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

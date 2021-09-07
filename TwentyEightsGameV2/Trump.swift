@@ -1,8 +1,8 @@
 //
-//  File.swift
-//  TwentyEightsGameV2
+//  Trump.swift
+//  TwentyEights
 //
-//  Created by Thomas Fuller on 3/2/21.
+//  Created by Thomas Fuller
 //
 
 import Foundation

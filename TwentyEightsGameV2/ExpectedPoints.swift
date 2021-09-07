@@ -1,8 +1,8 @@
 //
 //  ExpectedPoints.swift
-//  ExpectedPoints
+//  TwentyEights
 //
-//  Created by Thomas Fuller on 9/3/21.
+//  Created by Thomas Fuller
 //
 
 import Foundation
@@ -13,6 +13,15 @@ extension CPUPlayer {
     struct ExpectedPoints {
         var winning: Double = 0.0
         var losing: Double = 0.0
+        
+        static func += (lhs: inout ExpectedPoints, rhs: ExpectedPoints) {
+            lhs.winning += rhs.winning
+            lhs.losing += rhs.losing
+        }
+        
+        static func * (lhs: ExpectedPoints, rhs: Double) -> ExpectedPoints {
+            ExpectedPoints(winning: lhs.winning * rhs, losing: lhs.losing * rhs)
+        }
     }
     
     /// The expected points for a card of the lead, trump or other suit played by a subsequent player of a PartnerGroup when max if winning or min if losing the total trick points
@@ -48,7 +57,6 @@ extension CPUPlayer {
                     expectedPoints.lead[suit] = getPointsForSuit(suit: suit)
                 }
             }
-            
             // Calc the expected points if not playing either lead or trump
             expectedPoints.notLeadOrTrump[suit] = avgPointsIfNotLeadOrTrump(excluding: suit)
         }
@@ -67,21 +75,25 @@ extension CPUPlayer {
         ]
         
         let honorCards = otherHandsAnalysis.suits[suit]!.honorCards
-        
         let winningPoints = pointsPerCardInHandState(honorCards: honorCards, winning: true)
         let losingPoints = pointsPerCardInHandState(honorCards: honorCards, winning: false)
         
+        /// Array of opponent  pairs of honor points honorCards in each  hand for unknown pooled states of 0,1,2,3,4
+        let honorComboStates: [[(Int,Int)]] = [
+            [(0,0)],
+            [(1,0)],
+            [(2,0), (1,1)],
+            [(3,0), (2,1)],
+            [(4,0), (3,1), (2,2)]
+        ]
         
-        for group in Team.allCases {
-            let seats = following.seats_OfGroup_Not_EmptyofSuit(group, suit)
-            
-            // Early continue this loop if no seats for group
-            if seats.isEmpty { continue }
+        for team in followingTeams() {
+            let seats = followingNotEmpty(of: suit, from: team)
             
             var avgSumPoints = ExpectedPoints()
             var denominator = 1.0
             
-            for n in 0 ... (honorCards.count - 1)  {
+            for n in 0 ... honorCards.count {
                 
                 let chanceOfPooledNCards = hyperGeoProb(
                     success: n,
@@ -102,14 +114,6 @@ extension CPUPlayer {
                      that collective adds to any value between 0 and 4. i.e. if there are 3 honor honorCards remaining there are 6 summed value state (2 + 2 + 1 + 1).
                      */
                     
-                    /// Array of opponent  pairs of honor points honorCards in each  hand for unknown pooled states of 0,1,2,3,4
-                    let honorComboStates: [[(Int,Int)]] = [
-                        [(0,0)],
-                        [(1,0)],
-                        [(2,0), (1,1)],
-                        [(3,0), (2,1)],
-                        [(4,0), (3,1), (2,2)]
-                    ]
                     
                     let opponentCardCountPairs = honorComboStates[n]
                     
@@ -127,7 +131,7 @@ extension CPUPlayer {
                 avgSumPoints.losing += stateSum.losing / denominator * chanceOfPooledNCards
             }
             // Add to the return dictionary
-            pointsByGroup[group] =  avgSumPoints
+            pointsByGroup[team] =  avgSumPoints
         }
         return pointsByGroup
     }
@@ -208,9 +212,9 @@ extension CPUPlayer {
     /// Returns the average honor points per cards in the deck that excludes cards of the current player, and cards of  the lead suit and optionally the trumpSuit
     private func avgPointsIfNotLeadOrTrump(excluding leadSuit: Suit) -> ExpectedPoints {
         
-        let nonSuitNonTrumpCards: [Card] = Suit.allCases.reduce(into: []) { cards, suit in
+        let nonSuitNonTrumpCards: Int = Suit.allCases.reduce(into: 0) { total, suit in
             if suit != leadSuit && !( trumpKnown && suit == trump.suit! ) {
-                cards.append(contentsOf: otherHandsAnalysis.suits[suit]!.cards)
+                total += otherHandsAnalysis.suits[suit]!.count
             }
         }
         
@@ -230,7 +234,7 @@ extension CPUPlayer {
         else {
             let honorPoints: Int = nonSuitHonorCards.reduce(0, +)
             let avgHonorPoints = Double(honorPoints) / Double(nonSuitHonorCards.count)
-            let proportionHonours = Double(nonSuitHonorCards.count) / Double(nonSuitNonTrumpCards.count)
+            let proportionHonours = Double(nonSuitHonorCards.count) / Double(nonSuitNonTrumpCards)
             
             return ExpectedPoints(winning: avgHonorPoints, losing: proportionHonours * avgHonorPoints)
         }

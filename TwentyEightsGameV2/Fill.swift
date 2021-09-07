@@ -2,7 +2,7 @@
 //  fill.swift
 //  TwentyEightsGameV2
 //
-//  Created by Thomas Fuller on 7/14/21.
+//  Created by Thomas Fuller.
 //
 
 import SwiftUI

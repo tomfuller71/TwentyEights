@@ -1,8 +1,8 @@
 //
 //  EndGameView.swift
-//  JokerGame
+//  TwentyEights
 //
-//  Created by Tom Fuller on 1/9/21.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

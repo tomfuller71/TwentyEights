@@ -2,7 +2,7 @@
 //  Suit.swift
 //  TwentyEights
 //
-//  Created by Tom Fuller on 10/12/20.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

@@ -1,8 +1,6 @@
 //
-//  File.swift
-//  TwentyEightsGameV2
-//
-//  Created by Thomas Fuller on 3/1/21.
+//  IntID.swift
+//  Created by Thomas Fuller
 //
 
 import Foundation

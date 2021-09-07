@@ -1,8 +1,8 @@
 //
 //  Round.swift
-//  TwentyEightsGameV2
+//  TwentyEights
 //
-//  Created by Thomas Fuller on 2/26/21.
+//  Created by Thomas Fuller
 //
 
 import Foundation
@@ -154,7 +154,7 @@ extension Round {
             trump.beenPlayed = true
         }
         
-        if currentTrick.isEmpty {
+        if currentTrick.seatActions.count == 1 {
             // If bidder leads a suit prior to trump being called then that suit can't be Trump
             if !trump.isCalled && seat == trump.bidder {
                 suitsKnownCantBeTrump.insert(card.suit)
@@ -264,8 +264,6 @@ extension Round {
         }
     }
     
-
-    
     func getSetofSeats(type: Seat.SetType) -> Set<Seat> {
         switch type {
         case .all:
@@ -275,11 +273,6 @@ extension Round {
         case .following:
             return currentTrick.followingSeats
         }
-    }
-    
-    /// Returns  `Set\<Seat>` that are not known to be empty of a given Suit<Suit>  optionally selecting from `SeatType`
-    func seatsNotEmptyOf(_ suit: Suit, from setType: Seat.SetType = .all) -> Set<Seat> {
-        getSetofSeats(type: setType).subtracting(seatsKnownEmptyForSuit[suit]!)
     }
     
     /// Returns true if the card is played as a trump

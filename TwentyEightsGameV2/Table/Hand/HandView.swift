@@ -1,8 +1,8 @@
 //
 //  HandView.swift
-//  JokerGame
+//  TwentyEights
 //
-//  Created by Tom Fuller on 12/25/20.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

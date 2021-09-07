@@ -1,8 +1,8 @@
 //
 //  GameModel.swift
-//  TwentyEightsGameV2
+//  TwentyEights
 //
-//  Created by Thomas Fuller on 2/26/21.
+//  Created by Thomas Fuller
 //
 
 import Foundation

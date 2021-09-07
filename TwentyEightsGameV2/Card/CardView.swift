@@ -1,8 +1,8 @@
 //
-//  Card.swift
+//  CardView.swift
 //  TwentyEights
 //
-//  Created by Tom Fuller on 10/7/20.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

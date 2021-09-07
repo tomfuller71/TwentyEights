@@ -2,7 +2,7 @@
 //  Bid.swift
 //  TwentyEights
 //
-//  Created by Tom Fuller on 11/9/20.
+//  Created by Tom Fuller
 //
 
 import Foundation

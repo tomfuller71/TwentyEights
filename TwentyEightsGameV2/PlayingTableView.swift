@@ -1,8 +1,8 @@
 //
-//  BidView.swift
+//  PlayingTableView.swift
 //  TwentyEights
 //
-//  Created by Tom Fuller on 12/1/20.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

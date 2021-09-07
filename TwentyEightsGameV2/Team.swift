@@ -2,7 +2,7 @@
 //  PartnerGroup.swift
 //  JokerGame
 //
-//  Created by Tom Fuller on 1/13/21.
+//  Created by Tom Fuller
 //
 
 import Foundation

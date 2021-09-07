@@ -1,8 +1,8 @@
 //
-//  TableBackgroundView.swift
+//  BackgroundView.swift
 //  TwentyEights
 //
-//  Created by Tom Fuller on 11/17/20.
+//  Created by Tom Fuller
 //
 
 import SwiftUI

@@ -67,7 +67,7 @@
 		FA6EE1E326E157DC003DAFEF /* Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6EE1E226E157DC003DAFEF /* Following.swift */; };
 		FA6EE1E526E1585A003DAFEF /* CardEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6EE1E426E1585A003DAFEF /* CardEvaluation.swift */; };
 		FA6EE1E926E2AA78003DAFEF /* ExpectedPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6EE1E826E2AA78003DAFEF /* ExpectedPoints.swift */; };
-		FA6EE1EB26E306DD003DAFEF /* ChancesAndPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6EE1EA26E306DD003DAFEF /* ChancesAndPoints.swift */; };
+		FA6EE1EB26E306DD003DAFEF /* TrumpChanceAndExpectedPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6EE1EA26E306DD003DAFEF /* TrumpChanceAndExpectedPoints.swift */; };
 		FAD64343269F1AD700FBC7F7 /* Fill.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD64342269F1AD700FBC7F7 /* Fill.swift */; };
 		FAD7E1D626C9970500D4C3B8 /* BestSuitAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD7E1D526C9970500D4C3B8 /* BestSuitAnalysis.swift */; };
 		FAD98B0426DFF8BA0078AC26 /* CPUPlayer - Unused methods.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD98B0326DFF8BA0078AC26 /* CPUPlayer - Unused methods.swift */; };
@@ -137,7 +137,7 @@
 		FA6EE1E226E157DC003DAFEF /* Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Following.swift; sourceTree = "<group>"; };
 		FA6EE1E426E1585A003DAFEF /* CardEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardEvaluation.swift; sourceTree = "<group>"; };
 		FA6EE1E826E2AA78003DAFEF /* ExpectedPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpectedPoints.swift; sourceTree = "<group>"; };
-		FA6EE1EA26E306DD003DAFEF /* ChancesAndPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChancesAndPoints.swift; sourceTree = "<group>"; };
+		FA6EE1EA26E306DD003DAFEF /* TrumpChanceAndExpectedPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrumpChanceAndExpectedPoints.swift; sourceTree = "<group>"; };
 		FAD64342269F1AD700FBC7F7 /* Fill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fill.swift; sourceTree = "<group>"; };
 		FAD7E1D526C9970500D4C3B8 /* BestSuitAnalysis.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BestSuitAnalysis.swift; sourceTree = "<group>"; };
 		FAD98B0326DFF8BA0078AC26 /* CPUPlayer - Unused methods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CPUPlayer - Unused methods.swift"; sourceTree = "<group>"; };
@@ -365,7 +365,7 @@
 				FA6EE1E226E157DC003DAFEF /* Following.swift */,
 				FAD7E1D526C9970500D4C3B8 /* BestSuitAnalysis.swift */,
 				FA6EE1E826E2AA78003DAFEF /* ExpectedPoints.swift */,
-				FA6EE1EA26E306DD003DAFEF /* ChancesAndPoints.swift */,
+				FA6EE1EA26E306DD003DAFEF /* TrumpChanceAndExpectedPoints.swift */,
 				FA6EE1E426E1585A003DAFEF /* CardEvaluation.swift */,
 			);
 			name = "CPU sub models";
@@ -414,7 +414,7 @@
 					};
 				};
 			};
-			buildConfigurationList = C478FE4425E9B0230050B0E5 /* Build configuration list for PBXProject "TwentyEightsGameV2" */;
+			buildConfigurationList = C478FE4425E9B0230050B0E5 /* Build configuration list for PBXProject "TwentyEights" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -501,7 +501,7 @@
 				C478FED225E9B0C70050B0E5 /* Suit.swift in Sources */,
 				C4EC1C4A25FFA7B100A2ADA7 /* BidPickerView.swift in Sources */,
 				FA6EE1E526E1585A003DAFEF /* CardEvaluation.swift in Sources */,
-				FA6EE1EB26E306DD003DAFEF /* ChancesAndPoints.swift in Sources */,
+				FA6EE1EB26E306DD003DAFEF /* TrumpChanceAndExpectedPoints.swift in Sources */,
 				C478FEE725E9B1050050B0E5 /* Player.swift in Sources */,
 				C4EC1C4725FFA7B100A2ADA7 /* TrumpView.swift in Sources */,
 				C478FF0225E9B4DC0050B0E5 /* Round.swift in Sources */,
@@ -681,7 +681,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C478FE4425E9B0230050B0E5 /* Build configuration list for PBXProject "TwentyEightsGameV2" */ = {
+		C478FE4425E9B0230050B0E5 /* Build configuration list for PBXProject "TwentyEights" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C478FE5625E9B0240050B0E5 /* Debug */,

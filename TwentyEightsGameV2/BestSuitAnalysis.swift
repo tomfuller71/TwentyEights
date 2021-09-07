@@ -1,8 +1,8 @@
 //
-//  NestedStructs.swift
-//  JokerGame
+//  BestSuitAnalysis.swift
+//  TwentyEights
 //
-//  Created by Tom Fuller on 2/22/21.
+//  Created by Tom Fuller
 //
 
 import Foundation

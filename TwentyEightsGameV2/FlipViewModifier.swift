@@ -1,8 +1,6 @@
 //
 //  AnimatableModifer + Flip.swift
-//  TwentyEightsGameV2
-//
-//  Created by Thomas Fuller on 3/21/21.
+//  Created by Thomas Fuller
 //
 
 import SwiftUI

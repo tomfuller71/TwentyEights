@@ -1,8 +1,8 @@
 //
 //  CPUPlayer.swift
-//  TwentyEightsGameV2
+//  TwentyEights
 //
-//  Created by Thomas Fuller on 3/10/21.
+//  Created by Thomas Fuller
 //
 
 import Foundation
@@ -13,7 +13,6 @@ class CPUPlayer {
     private(set) var seat: Seat
     
     var otherHandsAnalysis: OtherHandsAnalysis
-    var following: Following
     var factorials32: [Double] = []
     
     private var activeCancellable: AnyCancellable?
@@ -23,7 +22,6 @@ class CPUPlayer {
         self.seat = game.starting
         
         self.otherHandsAnalysis = OtherHandsAnalysis(seat: self.seat, cards: [], trump: Trump())
-        self.following = Following(seats: Set(Seat.allCases), emptySuits: game.round.seatsKnownEmptyForSuit)
         self.factorials32 = CPUPlayer.getFirst32Factorials()
         
         self.activeCancellable = self.game.$active.sink { seat in
@@ -77,11 +75,6 @@ extension CPUPlayer {
                 trump: trump
             )
             
-            following = Following(
-                seats: currentTrick.followingSeats,
-                emptySuits: game.round.seatsKnownEmptyForSuit
-            )
-            
             if seatShouldCallTrump() {
                 return .callForTrump
             }
@@ -130,7 +123,7 @@ extension CPUPlayer {
     }
     
     var trumpEmpty: Bool {
-        trumpKnown && otherHandsAnalysis.suits[trump.suit!]?.count == 0
+        trumpKnown && otherHandsAnalysis.isEmpty(of: trump.suit!)
     }
     
     // Using below to convienience to shorten property lengths
@@ -140,6 +133,11 @@ extension CPUPlayer {
     
     var trump: Trump {
         game.round.trump
+    }
+    
+    /// Returns true if given seat not known to be empty of the given suit
+    func seatKnownEmptyOfSuit(_ seat: Seat, _ suit: Suit) -> Bool {
+        game.round.seatsKnownEmptyForSuit[suit]!.contains(seat)
     }
 }
 
@@ -315,7 +313,10 @@ extension CPUPlayer {
                 print("Not calling as partner winning with top card, following players aren't empty of lead and not bidding team")
                 return false
             }
-            else if noPointsInTrick && otherHandsAnalysis.suits[currentTrick.leadSuit!]!.honorPoints == 0 && !onlyHaveHonorsLeftInHand {
+            else if noPointsInTrick
+                        && otherHandsAnalysis.suits[currentTrick.leadSuit!]!.honorCards.isEmpty
+                        && !onlyHaveHonorsLeftInHand
+            {
                 print("Not calling as no points in trick, no remaining lead honors and don't only have honor left in hand")
                 return false
             }
@@ -479,11 +480,7 @@ extension CPUPlayer {
             return first
         }
     }
-    
-    /// Returns true if given seat not known to be empty of the given suit
-    private func seatKnownEmptyOfSuit(_ seat: Seat, _ suit: Suit) -> Bool {
-        game.round.seatsKnownEmptyForSuit[suit]!.contains(seat)
-    }
+
     
     
     /// Returns an array of card evlautions that excludes any  for cards that would be unbeatable if played in a future trick
@@ -537,6 +534,7 @@ extension CPUPlayer {
         
         // For each eligible suit, and team, get chance that a card of suit would be trumped by the team, and the expected points value of the card(s) played by the team
         let suitAnalysis: BestSuitToPlayAnalysis = getSuitAnalysis(eligible: eligibleSuits)
+        let newAnlys = getSuitTeamChancesAndPoints(eligible: eligibleSuits)
         
         // Get the chance that an opponent has a higher trump than your partner
         let trumpTopRank: Int = otherHandsAnalysis.suits[trump.suit!]!.topRank
@@ -643,51 +641,7 @@ extension CPUPlayer {
         return cardProbabilities
     }
     
-    /// Enumeration of types of action a follwoing seat could play
-    enum CardAction: CaseIterable, Hashable {
-        case playSuit, cut(trump: Bool?)
-        
-        static let allCases: [CardAction] = [
-            .playSuit,
-            .cut(trump: true),
-            .cut(trump: false),
-            .cut(trump: nil)
-        ]
-    }
-    
-    
-    func potentialCardActions(for player: Seat, lead: Suit) -> [CardAction] {
-        var cardActionOptions: [CardAction] = []
-        
-        // See playsuit suit to either the lead suit or trick leadSuit
-        let playingSuit = currentTrick.isEmpty ? lead : currentTrick.leadSuit!
-        
-        // Assume can play lead suit unless known othrewise
-        let canPlaySuit = !( otherHandsAnalysis.suits[playingSuit]!.count == 0
-                             || following.seatsKnownEmptyForSuit[playingSuit]!.contains(player) )
-        
-        // Can always potentially cut, whether have trump is either known(true/false) or unknown nil
-        var hasTrumps: Bool? = nil
-        if trumpKnown {
-            if ( trumpEmpty || game.round.seatsKnownEmptyForSuit[trump.suit!]!.contains(player) ) {
-                hasTrumps = false
-            }
-            else if trump.bidder == player && !trump.beenPlayed {
-                hasTrumps = true
-            }
-        }
-        
-        // Add viable card actions
-        if canPlaySuit {
-            cardActionOptions.append(.playSuit)
-        }
-        cardActionOptions.append(.cut(trump: hasTrumps))
-        
-        return cardActionOptions
-    }
-    
 
-    
     
        
     /// Returns the average honor points per cards in the deck that excludes cards of the current player, and cards of  the lead suit and optionally the trumpSuit
@@ -737,7 +691,7 @@ extension CPUPlayer {
             }
         }
         
-        let roundedAverage = Double(totalCount / potentialSuitCount).rounded()
+        let roundedAverage = (Double(totalCount) / Double(potentialSuitCount)).rounded()
         return Int(roundedAverage)
     }
 
@@ -745,56 +699,60 @@ extension CPUPlayer {
     private func chanceTeamHasSuitTopRank(card: Card, suitTopRank: Int) -> Double {
         
         let validSuit = currentTrick.isEmpty || card.suit == currentTrick.leadSuit
-            || (trump.isCalled && card.suit == trump.suit)
+        || (trump.isCalled && card.suit == trump.suit)
         
         let rankToBeat = currentTrick.playerIsLastToPlay ? currentTrick.winningRank : suitTopRank
-        
-        let partnerWinnerIsTopRank = currentTrick.winningSeat == seat.partner
-            && currentTrick.winningRank > suitTopRank
-        
         let seatCardIsTopRank = validSuit && card.currentRank > rankToBeat
+        let winnerIsTopRank = currentTrick.winningRank > suitTopRank
         
-        // If seat or partner has top Rank then chance Top is certain
-        if seatCardIsTopRank || partnerWinnerIsTopRank {
-            return 1
+        var chanceTop: Double = 0
+        // If seatCard is top rank it wins
+        if seatCardIsTopRank {
+            chanceTop = 1
         }
-        // If partner can still play then chance to win
-        else if game.round.seatsNotEmptyOf(card.suit, from: .following).contains(seat.partner) {
-            let countOpponentsWhoCouldPlaySuit = Double(
-                following.seats_OfGroup_Not_EmptyofSuit(seat.team.opposingTeam, card.suit)
-                    .count
-            )
-            return 1 / ( 1 + countOpponentsWhoCouldPlaySuit)
+        // Otherwise if the best rank card has already been played
+        else if winnerIsTopRank {
+            chanceTop = currentTrick.winningSeat == seat.partner ? 1 : 0
         }
-        // If neither seat nor partner top then assume certain to lose the trick
+        // Otherwise chance to win if partner isnt empty
         else {
-            return 0
+            if seatKnownEmptyOfSuit(seat.partner, card.suit) {
+                chanceTop = 0
+            }
+            else {
+                let countOpponentsWhoCouldPlaySuit = Double(
+                    followingNotEmpty(of: card.suit, from: seat.team.opposingTeam).count
+                )
+                chanceTop = 1 / ( 1 + countOpponentsWhoCouldPlaySuit)
+            }
         }
+        
+        return chanceTop
     }
     
     ///Returns chance the playing Team has the top ranked card of the suit of the card being evaluated
     private func chanceOppHigherTrumpThanPartner(topRank: Int) -> Double {
         var opTrumps: Int {
             if trumpKnown {
-                return following.seats_OfGroup_Not_EmptyofSuit(
-                    seat.team.opposingTeam,
-                    trump.card!.suit
+                return followingNotEmpty(
+                    of: trump.card!.suit,
+                    from: seat.team.opposingTeam
                 ).count
             }
             else {
-                return following.seatsOfTeam(seat.team.opposingTeam).count
+                return seatsOfTeam(seat.team.opposingTeam).count
             }
         }
         
         var partnerTrumps: Int {
             if trumpKnown {
-                return following.seats_OfGroup_Not_EmptyofSuit(
-                    seat.team,
-                    trump.card!.suit
+                return followingNotEmpty(
+                    of: trump.card!.suit,
+                    from: seat.team
                 ).count
             }
             else {
-                return following.seatsOfTeam(seat.team).count
+                return seatsOfTeam(seat.team).count
             }
         }
         
@@ -815,7 +773,7 @@ extension CPUPlayer {
         let population = otherHandsAnalysis.population
         
         var expectedPointsForTrump = [ Team : ExpectedPoints ]()
-        if trumpKnown && otherHandsAnalysis.suits[trump.suit!]!.count > 0 {
+        if trumpKnown && !trumpEmpty {
             expectedPointsForTrump = expectedPointsForPooledHands(
                 population: population,
                 suit: trump.suit!,
@@ -864,7 +822,7 @@ extension CPUPlayer {
             var teamEvaluations = TeamsEvaluations()
             for team in Team.allCases {
                 // Knowledge of the state of ability of a seat to trump is contained in the following sets
-                let followingTeamSeats = following.seatsOfTeam(team)
+                let followingTeamSeats = seatsOfTeam(team)
                 
                 // If no-one in this team set team values to zero and continue the loop
                 if followingTeamSeats.isEmpty {
@@ -881,7 +839,7 @@ extension CPUPlayer {
                 
                 var knownEmptyOfTrumps = Set<Seat>()
                 if trumpCount != 0 {
-                    knownEmptyOfTrumps = following.seats_OfGroup_EmptyofSuit(team, trump.suit!)
+                    knownEmptyOfTrumps = followingEmpty(of: trump.suit!, from: team)
                 }
                 else {
                     knownEmptyOfTrumps = followingTeamSeats
@@ -899,7 +857,7 @@ extension CPUPlayer {
                 // For the lead suit
                 var knownEmptyOfSuit = Set<Seat>()
                 if suitCount != 0 {
-                    knownEmptyOfSuit = following.seats_OfGroup_EmptyofSuit(team, suit)
+                    knownEmptyOfSuit = followingEmpty(of: suit, from: team)
                 }
                 else {
                     knownEmptyOfSuit = followingTeamSeats
@@ -1255,23 +1213,28 @@ extension CPUPlayer {
         ]
         
         // Early return if no honor cards or following seats
-        if honorCards.count == 0 || following.seats.isEmpty  { return pointsByGroup }
+        if honorCards.count == 0 || currentTrick.followingSeats.isEmpty  {
+            return pointsByGroup
+        }
         
         let winningPoints = expectedPointPerCardsInHandsState(honorCards: honorCards, winning: true)
         let losingPoints = expectedPointPerCardsInHandsState(honorCards: honorCards, winning: false)
         
+        /// Array of opponent  pairs of honor points honorCards in each  hand for unknown pooled states of 0,1,2,3,4
+        let honorComboStates: [[(Int,Int)]] = [
+            [(0,0)],
+            [(1,0)],
+            [(2,0), (1,1)],
+            [(3,0), (2,1)],
+            [(4,0), (3,1), (2,2)]
+        ]
         
-        for group in Team.allCases {
-            let seats = following.seats_OfGroup_Not_EmptyofSuit(group, suit)
-            
-            // Early continue this loop if no seats for group
-            if seats.isEmpty { continue }
-            
+        for group in followingTeams() {
+            let seats = followingNotEmpty(of: suit, from: group)
             var avgSumPoints = ExpectedPoints()
             var denominator = 1.0
             
-            
-            for n in 0 ... (honorCards.count - 1)  {
+            for n in 0 ... honorCards.count {
                 
                 let chanceOfPooledNCards = hyperGeoProb(
                     success: n,
@@ -1292,15 +1255,6 @@ extension CPUPlayer {
                      that collective adds to any value between 0 and 4. i.e. if there are 3 honor honorCards remaining there are 6 summed value state (2 + 2 + 1 + 1).
                      */
                     
-                    /// Array of opponent  pairs of honor points honorCards in each  hand for unknown pooled states of 0,1,2,3,4
-                    let honorComboStates: [[(Int,Int)]] = [
-                        [(0,0)],
-                        [(1,0)],
-                        [(2,0), (1,1)],
-                        [(3,0), (2,1)],
-                        [(4,0), (3,1), (2,2)]
-                    ]
-                    
                     let opponentCardCountPairs = honorComboStates[n]
                     
                     // For each potential pair of values that sum to n
@@ -1309,6 +1263,7 @@ extension CPUPlayer {
                         stateSum.losing += losingPoints[pair.0] + losingPoints[pair.1]
                     }
                     
+                    // This is a shortcut it averages the comboStates vs in reality some of these combo states more likely than others
                     denominator = Double(opponentCardCountPairs.count)
                 }
                 
