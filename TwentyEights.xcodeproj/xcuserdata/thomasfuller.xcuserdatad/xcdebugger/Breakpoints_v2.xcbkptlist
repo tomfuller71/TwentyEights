@@ -75,8 +75,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1085"
-            endingLineNumber = "1085"
+            startingLineNumber = "1088"
+            endingLineNumber = "1088"
             landmarkName = "getSuitAnalysis(eligible:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -107,8 +107,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1199"
-            endingLineNumber = "1199"
+            startingLineNumber = "1202"
+            endingLineNumber = "1202"
             landmarkName = "expectedPointPerCardsInHandsState(honorCards:winning:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -365,8 +365,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "598"
-            endingLineNumber = "598"
+            startingLineNumber = "601"
+            endingLineNumber = "601"
             landmarkName = "getCardEvaluations(from:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -381,8 +381,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "638"
-            endingLineNumber = "638"
+            startingLineNumber = "641"
+            endingLineNumber = "641"
             landmarkName = "getCardEvaluations(from:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -413,8 +413,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1089"
-            endingLineNumber = "1089"
+            startingLineNumber = "1092"
+            endingLineNumber = "1092"
             landmarkName = "getSuitAnalysis(eligible:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -429,8 +429,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1092"
-            endingLineNumber = "1092"
+            startingLineNumber = "1095"
+            endingLineNumber = "1095"
             landmarkName = "getSuitAnalysis(eligible:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -484,7 +484,7 @@
             landmarkType = "0">
             <Locations>
                <Location
-                  uuid = "021FEEC3-386F-4E0B-9619-F92F170D68F3 - 71865f19b41c1ff9"
+                  uuid = "021FEEC3-386F-4E0B-9619-F92F170D68F3 - 71865f19b41c1f3f"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -494,12 +494,12 @@
                   urlString = "file:///Users/thomasfuller/Library/Mobile%20Documents/com~apple~CloudDocs/Developer/Swift%20projects/TwentyEightsGameV2/TwentyEightsGameV2/IOS_Device.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "39"
-                  endingLineNumber = "39"
+                  startingLineNumber = "37"
+                  endingLineNumber = "37"
                   offsetFromSymbolStart = "80">
                </Location>
                <Location
-                  uuid = "021FEEC3-386F-4E0B-9619-F92F170D68F3 - 7c43c282999ce210"
+                  uuid = "021FEEC3-386F-4E0B-9619-F92F170D68F3 - 7c43c282999ce2d6"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -509,8 +509,8 @@
                   urlString = "file:///Users/thomasfuller/Library/Mobile%20Documents/com~apple~CloudDocs/Developer/Swift%20projects/TwentyEightsGameV2/TwentyEightsGameV2/IOS_Device.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "39"
-                  endingLineNumber = "39"
+                  startingLineNumber = "37"
+                  endingLineNumber = "37"
                   offsetFromSymbolStart = "252">
                </Location>
             </Locations>
@@ -590,8 +590,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1084"
-            endingLineNumber = "1084"
+            startingLineNumber = "1087"
+            endingLineNumber = "1087"
             landmarkName = "getSuitAnalysis(eligible:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -606,8 +606,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "995"
-            endingLineNumber = "995"
+            startingLineNumber = "998"
+            endingLineNumber = "998"
             landmarkName = "getSuitAnalysis(eligible:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -622,8 +622,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "877"
-            endingLineNumber = "877"
+            startingLineNumber = "880"
+            endingLineNumber = "880"
             landmarkName = "getSuitAnalysis(eligible:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -638,8 +638,8 @@
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1033"
-            endingLineNumber = "1033"
+            startingLineNumber = "1036"
+            endingLineNumber = "1036"
             landmarkName = "getSuitAnalysis(eligible:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -648,14 +648,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "C7944316-9794-442B-B46D-1B5027BA337B"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "540"
-            endingLineNumber = "540"
+            startingLineNumber = "543"
+            endingLineNumber = "543"
             landmarkName = "getCardEvaluations(from:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -664,14 +664,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "42C16FEF-2C92-422E-8D7B-325DD95B0547"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TwentyEightsGameV2/CPUPlayer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1209"
-            endingLineNumber = "1209"
+            startingLineNumber = "1212"
+            endingLineNumber = "1212"
             landmarkName = "CPUPlayer"
             landmarkType = "21">
          </BreakpointContent>
@@ -680,15 +680,31 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "A01E412D-119D-42C3-8956-0B3CA21371F3"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "TwentyEightsGameV2/TrumpChanceAndExpectedPoints.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "194"
-            endingLineNumber = "194"
+            startingLineNumber = "195"
+            endingLineNumber = "195"
             landmarkName = "getSuitTeamChancesAndPoints(eligible:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2FC34DBD-C365-400A-9B5D-56826FACC528"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TwentyEightsGameV2/Round.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "250"
+            endingLineNumber = "250"
+            landmarkName = "canSeatCallTrump(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

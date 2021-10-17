@@ -96,7 +96,8 @@ extension CPUPlayer {
         
         var chance: Double = 0
         if sample != 0 && successPopulation != 0 {
-            chance = hyperGeoProb(
+            // Chance has trumps is 1 - chance of success 0 (no trumps)
+            chance = 1 -  hyperGeoProb(
                 success: 0,
                 successPopulation: successPopulation,
                 sample: sample,

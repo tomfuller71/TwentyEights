@@ -247,23 +247,25 @@ extension Round {
     
     /// Returns whether a seat can call trump
     func canSeatCallTrump(_ seat: Seat) -> Bool {
-        guard (!trump.isCalled) else { return false }
-        
-        let hand = hands[seat]
-        
-        let isEmptyOflLeadSuit = !currentTrick.isEmpty && hand.filter {
-            $0.suit == currentTrick.leadSuit }
-            .isEmpty
-        
-        // Can only call if empty of lead suit or if you're the bidder and its the last trick of round
-        if isEmptyOflLeadSuit || (seat == trump.bidder && lastTrickOfRound) {
-            return true
+        if trump.isCalled || currentTrick.isEmpty {
+            return false
         }
         else {
-            return false
+            let isEmptyOflLeadSuit = hands[seat].filter { $0.suit == currentTrick.leadSuit }.isEmpty
+            let seatBidderLeadTrump = seat == trump.bidder && currentTrick.leadSuit == trump.suit!
+            
+            // Can only call if empty of lead suit and not the bidder folowing suit of the trump
+            // or if its the last trick of round
+            if isEmptyOflLeadSuit && (!seatBidderLeadTrump || lastTrickOfRound) {
+                return true
+            }
+            else {
+                return false
+            }
         }
     }
     
+    /// Returns a set of representing one of the SetTypes  of all, seats that are yet to play in the current trick, or the seats following after the current seat playing in the trick
     func getSetofSeats(type: Seat.SetType) -> Set<Seat> {
         switch type {
         case .all:

@@ -435,23 +435,25 @@ extension CPUPlayer {
     
     /// Returns the best card to play that is certain to win
     private func bestCertainWinningCard(from eligibleProbsAndPoints: [CardEvaluation]) -> Card {
-        
         /*If certain to win try and play in order:
-             i) any winning 'shake' honors in hand of the suit that are not unbeatable in future tricks
-             ii) highest EV certain winner that is not unbeatable non top rank in future tricks
-             iii) the highest EV card that isn't unbeatable
-             iv) the highest EV (first recommended) card
+         i) any winning 'shake' honors in hand of the suit that are not unbeatable in future tricks
+         ii) highest EV certain winner that is not unbeatable non top rank in future tricks
+         iii) the highest EV card that isn't unbeatable
+         iv) the highest EV (first recommended) card
          */
+        
+        let certainWinners = eligibleProbsAndPoints.filter { $0.winChance >= 1 }
+        
+        
+        if certainWinners.isEmpty{
             
-            let first = eligibleProbsAndPoints[0].card
-            let certainWinners = eligibleProbsAndPoints.filter { $0.winChance >= 1 }
-            
-            let winnersExcludingUnbeatable: [CardEvaluation] = certainWinners.isEmpty ? [] :
-            excludeUnbeatableCardEvalutions(from: certainWinners)
-            
-            if !winnersExcludingUnbeatable.isEmpty {
-                let soleHonors = winnersExcludingUnbeatable.filter {
-                    game.round.hands.hasSoleHonorCard(seat: seat, suit: $0.card.suit)
+        }
+        let winnersExcludingUnbeatable: [CardEvaluation] = certainWinners.isEmpty ? [] :
+        excludeUnbeatableCardEvalutions(from: certainWinners)
+        
+        if !winnersExcludingUnbeatable.isEmpty {
+            let soleHonors = winnersExcludingUnbeatable.filter {
+                game.round.hands.hasSoleHonorCard(seat: seat, suit: $0.card.suit)
             }
             
             if let best = soleHonors.first?.card {
@@ -477,6 +479,7 @@ extension CPUPlayer {
         }
         else {
             print("No unbeatable or top-rank card that aren't known cuttable - so playing first certain winner")
+            let first = eligibleProbsAndPoints[0].card
             return first
         }
     }
