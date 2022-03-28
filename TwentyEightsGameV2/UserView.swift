@@ -132,17 +132,17 @@ extension UserView {
     
     private var trickComplete: Bool { game.round.currentTrick.isComplete }
     
-    private var userIsLastBidder: Bool {
-        game.round.actions.filter { action in
-            switch action.type {
-            case .makeBid(_):
-                return true
-            default:
-                return false
-            }
-        }
-        .last?.seat == userSeat
-    }
+//    private var userIsLastBidder: Bool {
+//        game.round.actions.filter { action in
+//            switch action.type {
+//            case .makeBid(_):
+//                return true
+//            default:
+//                return false
+//            }
+//        }
+//        .last?.seat == userSeat
+//    }
 }
 
 // MARK: - Update methods

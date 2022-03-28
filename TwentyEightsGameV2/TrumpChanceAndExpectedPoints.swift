@@ -17,9 +17,7 @@ extension CPUPlayer {
     struct CanCutHasTrumpChance {
         var canCut: Double =  0
         var hasTrumps: Double = 0
-        var trumpChance: Double {
-            canCut * hasTrumps
-        }
+        var trumpChance: Double { canCut * hasTrumps }
     }
     
     /// A structure that hold the chances of a card of a suit being trumped and the expected trick point won or lost
@@ -28,7 +26,7 @@ extension CPUPlayer {
         var expectedPoints = ExpectedPoints()
     }
     
-    /// A structure that holds for each suit  a dictionary of a teams 'ChancesAndPoints'
+    /// A structure that holds for each suit a dictionary of a teams 'ChancesAndPoints'
     struct SuitTeamChancesAndPoints {
         var analysis: [Suit: [Team : TrumpChanceAndExpectedPoints]]  = Suit.allCases
             .reduce(into: [:]) { result, suit in
@@ -51,7 +49,7 @@ extension CPUPlayer {
     /// Returns chance that team is empty of given suit
     private func chanceTeamEmptyOfSuit(seat: Seat, suit: Suit, pooledState: Bool) ->  Double {
         var sample: Int = 0
-        let population: Int = seatsNotEmpty(of: suit).count * handSize
+        let population: Int = getPopulationExcludingKnownEmptyHands(for: suit)
         
         if pooledState {
             sample = followingNotEmpty(of: suit, from: seat.team).count * handSize
@@ -72,25 +70,37 @@ extension CPUPlayer {
         return chance
     }
     
+    /// Remaining cards of hands not know to be empty of a given suit
+    func getPopulationExcludingKnownEmptyHands(for suit: Suit) -> Int {
+        let otherSeats = Seat.allCases.filter { $0 != seat }
+        
+        return otherSeats.reduce(into: 0) { (prev, seat) in
+            if !seatKnownEmptyOfSuit(seat, suit) {
+                prev += game.round.hands[seat].count
+            }
+        }
+    }
+    
     /// Returns chance team has trumps given suit being evaluated
     private func chanceTeamHasTrumps(seat: Seat, evalSuit: Suit, pooledState: Bool) ->  Double {
         var successPopulation: Int = 0
         var sample: Int = 0
-        var population: Int = 0
+        var population: Int = otherHandsAnalysis.population
         
         if trumpKnown {
             successPopulation = otherHandsAnalysis.suits[trump.suit!]!.count
-            population = seatsNotEmpty(of: evalSuit).count * handSize
-            if pooledState{
+            
+            if pooledState {
                 sample = followingNotEmpty(of: trump.suit!, from: seat.team).count * handSize
             }
             else {
                 sample = seatKnownEmptyOfSuit(seat, trump.suit!) ? handSize : 0
             }
+            
+            population = getPopulationExcludingKnownEmptyHands(for: evalSuit)
         }
         else {
             successPopulation = expectedTrumpCount()
-            population = otherHandsAnalysis.population
             sample = pooledState ? seatsOfTeam(seat.team).count * handSize : handSize
         }
         
@@ -116,50 +126,45 @@ extension CPUPlayer {
     
     /// Returns the chance a card played of a suit is trumped by a team and the expected honor point value of the cards played by the team
     private func getChancesAndPoints(
-        team: Team,
         suit: Suit,
-        teamKnownState: [SeatKnown],
-        points: PointsWhenPlaying)
-    -> TrumpChanceAndExpectedPoints {
+        teamState: [SeatState],
+        points: PointsWhenPlaying ) -> TrumpChanceAndExpectedPoints {
         
         // The return values
         var chancesAndPoints = TrumpChanceAndExpectedPoints()
         
         // Pooled if both team members are in the same state of certain knowlegde of  having suit or trump
-        let pooledTeamState = teamKnownState.count == 2 && teamKnownState[0] == teamKnownState[1]
+        let pooled = teamState.count == 2 && teamState[0].hasSameState(as: teamState[1])
         
-        // If the certain known states of the following team players are the same then their
-        // probabilities of trumping are in a pooled state - so just have one pooled state
-        // the probabilities still work as the underlying "chanceEmpty" functions take account
-        // of the pooled state to calc the combined probability
-        let seatStates = pooledTeamState ? teamKnownState.dropLast() : teamKnownState
-        for seatKnown in seatStates {
+        // underlying "chanceEmpty" functions take account of the pooled state
+        let seatStates = pooled ? teamState.dropLast() : teamState
+        for state in seatStates {
             var cutTrumpChance = CanCutHasTrumpChance()
             
             // Set value for has trumps
-            if seatKnown.hasTrumps {
+            if state.hasTrumps {
                 cutTrumpChance.hasTrumps = 1
             }
-            else if seatKnown.emptyOfTrump {
+            else if state.emptyOfTrump {
                 cutTrumpChance.hasTrumps = 0
             }
             else {
                 cutTrumpChance.hasTrumps = chanceTeamHasTrumps(
-                    seat: seat,
+                    seat: state.seat,
                     evalSuit: suit,
-                    pooledState: pooledTeamState
+                    pooledState: pooled
                 )
             }
             
             // Set value for can cut
-            if seatKnown.emptyOfTrump {
+            if state.emptyOfTrump {
                 cutTrumpChance.canCut = 1
             }
             else {
                 cutTrumpChance.canCut = chanceTeamEmptyOfSuit(
                     seat: seat,
                     suit: suit,
-                    pooledState: pooledTeamState
+                    pooledState: pooled
                 )
             }
             
@@ -174,7 +179,7 @@ extension CPUPlayer {
         
         return chancesAndPoints
     }
-    
+    //TODO: this can't work - expected points need to be calculated for both winning and losing
     ///  Get the summed expected points played by a seat given its PointsWhenPLaying and chance of cutting or trumping
     func getSeatPoints(points: PointsWhenPlaying, cutTrumpChance: CanCutHasTrumpChance) -> ExpectedPoints {
         var newPoints = ExpectedPoints()
@@ -183,7 +188,7 @@ extension CPUPlayer {
         let chancePlaysTrump: Double = cutTrumpChance.trumpChance
         let chancePlaysOther: Double = 1 - chancePlaysLead - chancePlaysTrump
         
-        newPoints += points.lead * chancePlaysLead
+        newPoints += points.lead * chancePlaysLead // how isn't this erroring?
         newPoints += points.trump * chancePlaysTrump
         newPoints += points.other * chancePlaysOther
         
@@ -213,9 +218,8 @@ extension CPUPlayer {
                 
                 // Get the chances and points for mix of seatKnownState and expected points
                 let chanceAndPoints = getChancesAndPoints(
-                    team: team,
                     suit: suit,
-                    teamKnownState: seatKnownState[suit][team]!,
+                    teamState: seatKnownState[suit][team]!,
                     points: pointsWhenPlaying
                 )
                 teamChanceAndPoints[team]! = chanceAndPoints
@@ -246,21 +250,29 @@ extension CPUPlayer {
     }
     
     /// The state of whether it is known as certain that a seat is empty of the lead suit in a trick, or if certain empty or has a trump
-    struct SeatKnown: Equatable {
+    struct SeatState: Equatable {
+        let seat: Seat
         var emptyOfLeadSuit: Bool = false
         var emptyOfTrump: Bool = false
         var hasTrumps: Bool = false
+        
+        func hasSameState(as other: SeatState) -> Bool {
+            emptyOfTrump == other.emptyOfTrump
+            && emptyOfLeadSuit == other.emptyOfTrump
+            && hasTrumps == other.hasTrumps
+        }
     }
     
     /// Returns the `SeatKnown` states for each following  player of a team in the trick  for the eligible suits
     private func getSuitTeamSeatKnown(eligible suits: Set<Suit>) -> SuitTeamSeatKnown {
         var suitKnown = SuitTeamSeatKnown()
         for suit in suits {
-            var teamSeatKnownState: [Team : [SeatKnown]] = Team.allCases
+            var teamSeatKnownState: [Team : [SeatState]] = Team.allCases
                 .reduce(into: [:]) { $0[$1] = [] }
             
             for seat in game.round.getSetofSeats(type: .following) {
-                teamSeatKnownState[seat.team]!.append(getSeatKnownState(for: seat, lead: suit))
+                let seatState = getSeatKnownState(for: seat, lead: suit)
+                teamSeatKnownState[seat.team]!.append(seatState)
             }
             suitKnown[suit] = teamSeatKnownState
         }
@@ -268,8 +280,8 @@ extension CPUPlayer {
     }
     
     /// Returns the SeatKnown state for a seat
-    func getSeatKnownState(for player: Seat, lead: Suit) -> SeatKnown {
-        var known = SeatKnown()
+    func getSeatKnownState(for player: Seat, lead: Suit) -> SeatState {
+        var known = SeatState(seat: player)
         
         // See playsuit suit to either the lead suit or trick leadSuit
         let playingSuit = currentTrick.isEmpty ? lead : currentTrick.leadSuit!
@@ -288,13 +300,12 @@ extension CPUPlayer {
         if trump.bidder == player && !trump.beenPlayed {
             known.hasTrumps = true
         }
-
         return known
     }
 
-    /// Dictionary of the `CanCutHasTrumpChance` for suit and team
+    /// Container for seatState by team by suit
     struct SuitTeamSeatKnown {
-        var chances: [ Suit: [ Team : [SeatKnown] ] ]  = Suit.allCases
+        var states: [ Suit: [ Team : [SeatState] ] ]  = Suit.allCases
             .reduce(into: [:]) { result, suit in
                 result[suit] = [
                     .player : [],
@@ -302,12 +313,12 @@ extension CPUPlayer {
                 ]
             }
         
-        subscript(_ suit: Suit) -> [ Team : [SeatKnown] ] {
+        subscript(_ suit: Suit) -> [ Team : [SeatState] ] {
             get {
-                return chances[suit]!
+                return states[suit]!
             }
             set(newValue) {
-                chances[suit]! = newValue
+                states[suit]! = newValue
             }
         }
     }

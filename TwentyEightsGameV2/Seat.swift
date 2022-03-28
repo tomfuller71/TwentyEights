@@ -11,7 +11,6 @@ import SwiftUI
 enum Seat: Int, CaseIterable {
     case north = 0, east, south, west
     
-    
     /// Enum of the types of seats sets used in the game
     enum SetType {
         /// All Seats
@@ -74,16 +73,6 @@ enum Seat: Int, CaseIterable {
             case .east:     return 90
             case .south:    return 180
             case .west:     return 270
-        }
-    }
-    
-    /// Helper function to advance a seat to the next player anti-clockwise
-    mutating func next() {
-        switch self {
-            case .north:    return self = .east
-            case .east:     return self = .south
-            case .south:    return self = .west
-            case .west:     return self = .north
         }
     }
     

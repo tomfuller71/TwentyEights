@@ -40,7 +40,7 @@ extension CPUPlayer {
     }
     
     /// Returns  which seats are not known to be empty of the given suit from a Seat.SetType defaulted to all seats
-    private func seatsEmpty(of suit: Suit, from setType: Seat.SetType = .all) -> Set<Seat> {
+    func seatsEmpty(of suit: Suit, from setType: Seat.SetType = .all) -> Set<Seat> {
         game.round.getSetofSeats(type: setType)
             .intersection(game.round.seatsKnownEmptyForSuit[suit]!)
     }

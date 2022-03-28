@@ -9,24 +9,22 @@ import Foundation
 import Combine
 
 class CPUPlayer {
-    private(set) var game: GameController
-    private(set) var seat: Seat
-    
+    let game: GameController
+    var seat: Seat
     var otherHandsAnalysis: OtherHandsAnalysis
-    var factorials32: [Double] = []
     
+    private let factorials32: [Double] = CPUPlayer.getFirst32Factorials()
     private var activeCancellable: AnyCancellable?
     
     init(game: GameController) {
         self.game = game
         self.seat = game.starting
-        
-        self.otherHandsAnalysis = OtherHandsAnalysis(seat: self.seat, cards: [], trump: Trump())
-        self.factorials32 = CPUPlayer.getFirst32Factorials()
+        self.otherHandsAnalysis = OtherHandsAnalysis()
         
         self.activeCancellable = self.game.$active.sink { seat in
             if self.game.players[seat]!.playerType == .localCPU {
                 self.seat = seat
+                self.getOtherHands()
                 self.takeAction()
             }
         }
@@ -34,11 +32,37 @@ class CPUPlayer {
     
     private class func getFirst32Factorials() -> [Double] {
         var facts: [Double] = []
-        for  i in 0 ... 32 {
-            let fact =  i > 0 ? (1 ... i).map(Double.init).reduce(1.0, *)  :  1
+        for  i in 1 ... 32 {
+            let fact = (1 ... i).map(Double.init).reduce(1.0, *)
             facts.append(fact)
         }
         return facts
+    }
+    
+    private func getOtherHands() {
+        var cards = game.round.hands.remainingCardsExcludingSeat(seat)
+
+        if !trump.isCalled && trump.bidder != seat {
+            cards.append(trump.card!)
+        }
+        
+        var remaining: [Suit : SuitAnalysis] = Suit.allCases.reduce(into:[:]) {
+            $0[$1] = SuitAnalysis() }
+        
+        for card in cards {
+            remaining[card.suit]!.count += 1
+            
+            if card.face.points > 0 {
+                remaining[card.suit]!.honorPoints += card.face.points
+                remaining[card.suit]!.honorCards.append(card)
+            }
+            
+            if (card.currentRank > remaining[card.suit]!.topRank) {
+                remaining[card.suit]!.topRank = card.currentRank
+            }
+        }
+        
+        otherHandsAnalysis = OtherHandsAnalysis(suits: remaining, population: cards.count)
     }
 }
 
@@ -68,12 +92,12 @@ extension CPUPlayer {
         // Otherwise play in trick
         else {
             
-            // Set analysis structures used in playing in trick
-            otherHandsAnalysis = OtherHandsAnalysis(
-                seat: seat,
-                cards: game.round.hands.remainingCardsExcludingSeat(seat),
-                trump: trump
-            )
+//          Set analysis structures used in playing in trick
+//            otherHandsAnalysis = OtherHandsAnalysis(
+//                seat: seat,
+//                cards: game.round.hands.remainingCardsExcludingSeat(seat),
+//                trump: trump
+//            )
             
             if seatShouldCallTrump() {
                 return .callForTrump
@@ -139,6 +163,8 @@ extension CPUPlayer {
     func seatKnownEmptyOfSuit(_ seat: Seat, _ suit: Suit) -> Bool {
         game.round.seatsKnownEmptyForSuit[suit]!.contains(seat)
     }
+    
+    var otherSeats: [Seat] { Seat.allCases.filter { $0 != seat} }
 }
 
 
@@ -358,8 +384,7 @@ extension CPUPlayer {
      
      - The EV losing is the chance of team losing * the estimated honor points in a trick where it is assumed that the partner will limit their points lost
      
-     - The chance of winning is a simple estimation that assumes that topRank card needed to win will have been played early in the round if it was available (no-finessing)
-         unless the player is last to play and it is clear what the winning rank was not played
+     - The chance of winning is a simple estimation that assumes that topRank card needed to win will have been played early in the round if it was available (no-finessing) unless the player is last to play and it is clear that the winning rank was not played
      
      - Chance of being trumped is probability based on knowledge the player of:
         - the number of players yet to play in trick,
@@ -372,9 +397,9 @@ extension CPUPlayer {
      - The "winning" chance = (chance of Team Having Top rank and not being trumped by anyone) + (chance Team itself Trumps and the opponent doesn't overtrump)
      */
     
-    /// Return the best card to play from an array of cards that are eligible to play, if reRun is true then we are calc the chance of next best card leading off the trick
+    /// Return the best card to play from an array of cards that are eligible to play
     private func selectBestCardToPlay(from eligibleCards: [Card]) -> Card {
-        let eligibleProbsAndPoints = getCardEvaluations(from: eligibleCards)
+        let eligible = getCardEvaluations(from: eligibleCards)
             .sorted {
                 if ($0.netExpectedPoints, $0.winChance) != ($1.netExpectedPoints, $1.winChance) {
                     return ($0.netExpectedPoints, $0.winChance) > ($1.netExpectedPoints, $1.winChance)
@@ -385,27 +410,28 @@ extension CPUPlayer {
             }
         
         // State of card with best EV
-        var bestCard = eligibleProbsAndPoints[0].card
+        let best = eligible[0]
         
         // Early return if playing first in trick
-        guard !currentTrick.isEmpty else { return bestCard }
+        guard !currentTrick.isEmpty else { return best.card }
         
         // Otherwise select the best card to play based on ...
-        let certainToLose = eligibleProbsAndPoints[0].winChance <= 0
-        let certainToWin = eligibleProbsAndPoints[0].winChance >= 1
-        let dumpingNonTrump = !currentTrick.isEmpty && bestCard.suit != currentTrick.leadSuit!
-            && !(trump.isCalled && bestCard.suit == trump.suit!)
+        let certainToLose = best.winChance <= 0
+        let certainToWin = best.winChance >= 1
+        let dumpingNonTrump = !currentTrick.isEmpty && best.card.suit != currentTrick.leadSuit!
+        && !(trump.isCalled && best.card.suit == trump.suit!)
         
         
         // Selection logic
         if certainToLose || dumpingNonTrump {
-            bestCard = bestCertainLosingCard(from: eligibleProbsAndPoints)
+            return bestCertainLosingCard(from: eligible)
         }
         else if certainToWin {
-            bestCard = bestCertainWinningCard(from: eligibleProbsAndPoints)
+            return bestCertainWinningCard(from: eligible)
         }
-        
-        return bestCard
+        else {
+            return best.card
+        }
     }
     
     
@@ -434,57 +460,35 @@ extension CPUPlayer {
     }
     
     /// Returns the best card to play that is certain to win
-    private func bestCertainWinningCard(from eligibleProbsAndPoints: [CardEvaluation]) -> Card {
+    private func bestCertainWinningCard(from eligible: [CardEvaluation]) -> Card {
         /*If certain to win try and play in order:
          i) any winning 'shake' honors in hand of the suit that are not unbeatable in future tricks
          ii) highest EV certain winner that is not unbeatable non top rank in future tricks
-         iii) the highest EV card that isn't unbeatable
-         iv) the highest EV (first recommended) card
+         iii) the highest EV (first recommended) card
          */
         
-        let certainWinners = eligibleProbsAndPoints.filter { $0.winChance >= 1 }
+        let certainWinners = eligible.filter { $0.winChance >= 1 }
         
-        
-        if certainWinners.isEmpty{
-            
+        let honors = certainWinners.filter{ $0.card.face.points > 0 }
+        if honors.count == 1 || certainWinners.count == 1 {
+            print("Playing only winner or shake honor")
+            return honors[0].card
         }
-        let winnersExcludingUnbeatable: [CardEvaluation] = certainWinners.isEmpty ? [] :
-        excludeUnbeatableCardEvalutions(from: certainWinners)
-        
-        if !winnersExcludingUnbeatable.isEmpty {
-            let soleHonors = winnersExcludingUnbeatable.filter {
-                game.round.hands.hasSoleHonorCard(seat: seat, suit: $0.card.suit)
-            }
-            
-            if let best = soleHonors.first?.card {
-                print("Playing beatable sole honor")
-                return best
-            }
-            else {
-                let excludingTopRankNotKnowCuttable = winnersExcludingUnbeatable.filter {
-                    !topRankNotKnownEmpty(
-                        card: $0.card,
-                        suitTopRank: otherHandsAnalysis.suits[$0.card.suit]!.topRank)
-                }
-                
-                if let best = excludingTopRankNotKnowCuttable.first?.card {
-                    print("Playing winner excluding unbeatable and top ranked cards of suit not known cuttable")
-                    return best
-                }
-                else {
-                    print("Playing highest EV excluding unbeatable cards")
-                    return winnersExcludingUnbeatable.first!.card
-                }
-            }
+        else if let bestNotUnbeatbleNotKnowCuttable = certainWinners.filter({ eval in
+            !topRankNotKnownEmpty(
+                card: eval.card,
+                suitTopRank: otherHandsAnalysis.suits[eval.card.suit]!.topRank
+            )
+        }).first {
+            print("Playing winner excluding unbeatable and top ranked cards of suit not known cuttable")
+            return bestNotUnbeatbleNotKnowCuttable.card
         }
         else {
-            print("No unbeatable or top-rank card that aren't known cuttable - so playing first certain winner")
-            let first = eligibleProbsAndPoints[0].card
-            return first
+            print("Playing highest EV excluding unbeatable cards")
+            return certainWinners[0].card
         }
-    }
 
-    
+    }
     
     /// Returns an array of card evlautions that excludes any  for cards that would be unbeatable if played in a future trick
     private func excludeUnbeatableCardEvalutions(from evaluations: [CardEvaluation]) -> [CardEvaluation] {

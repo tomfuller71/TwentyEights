@@ -33,11 +33,6 @@ struct RoundCards {
         hands[seat]!.filter { $0.suit == suit && $0.face.points > 0 }
     }
     
-    /// Returns true if the hand of given seat has only one sole (shake) honor card of the given suit
-    func hasSoleHonorCard(seat: Seat, suit: Suit) -> Bool {
-        hands[seat]!.filter { $0.suit == suit }.count == honorPointCardsFor(seat: seat, suit: suit).count
-    }
-    
     /// Returns a shuffled deck of the 28 cards used in game of 28s
     static func deal() -> [Card] {
         var newDeck: [Card] = []
